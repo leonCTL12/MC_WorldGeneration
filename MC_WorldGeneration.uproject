@@ -1,0 +1,13 @@
+{
+	"FileVersion": 3,
+	"EngineAssociation": "4.24",
+	"Category": "",
+	"Description": "",
+	"Modules": [
+		{
+			"Name": "MC_WorldGeneration",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}
