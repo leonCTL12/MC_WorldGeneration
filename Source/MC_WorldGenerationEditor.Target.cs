@@ -5,10 +5,10 @@ using System.Collections.Generic;
 
 public class MC_WorldGenerationEditorTarget : TargetRules
 {
-	public MC_WorldGenerationEditorTarget( TargetInfo Target) : base(Target)
+	public MC_WorldGenerationEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V2;
-		ExtraModuleNames.AddRange( new string[] { "MC_WorldGeneration" } );
+		ExtraModuleNames.Add("MC_WorldGeneration");
 	}
 }
