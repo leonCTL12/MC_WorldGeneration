@@ -20,10 +20,15 @@ private:
 		int worldWidth = 40;
 	UPROPERTY(EditAnywhere)
 		int worldLength = 40;
+
+	UPROPERTY(EditAnywhere)
+		int maxNumMountain = 19;
+	UPROPERTY(EditAnywhere)
+		int maxMountainHeight = 5;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ASoilBlock> soilBlockClass;
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AGrassBlock> glassBlockClass;
+		TSubclassOf<class AGrassBlock> grassBlockClass;
 
 	static const int BlockDimension = 100;
 
@@ -39,5 +44,7 @@ public:
 	void GenerateWorld();
 private:
 	void GenerateLand();
+	void GenerateMountain();
+	void BuildMountain(FVector2D peakPoint_2D);
 	void GenerateTree();
 };
