@@ -14,7 +14,7 @@ class MC_WORLDGENERATION_API ABlockBase : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABlockBase();
-
+	static int BlockDimension;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

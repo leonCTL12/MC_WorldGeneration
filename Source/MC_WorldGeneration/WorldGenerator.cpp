@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "SoilBlock.h"
+#include "GrassBlock.h"
 #include "WorldGenerator.h"
 
 // Sets default values
@@ -16,7 +17,7 @@ void AWorldGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	origin = GetActorLocation();
+	origin = GetActorLocation() - FVector(worldWidth/2,worldLength/2,0);
 
 	GenerateWorld();
 }
@@ -36,7 +37,21 @@ void AWorldGenerator::GenerateWorld()
 void AWorldGenerator::GenerateLand()
 {
 	FRotator Rotation(0);
-	GetWorld()->SpawnActor<ASoilBlock>(soilBlockClass, origin, Rotation);
+	//GetWorld()->SpawnActor<ASoilBlock>(soilBlockClass, origin, Rotation);
+	
+	UWorld* world = GetWorld();
+
+	FVector currentSpawnPoint = origin;
+
+	for (int w = 0; w < worldWidth; w++) {
+		currentSpawnPoint += FVector(BlockDimension, 0, 0);
+		currentSpawnPoint.Y = origin.Y;
+		for (int l = 0; l < worldLength; l++) {
+			world->SpawnActor<ASoilBlock>(soilBlockClass, currentSpawnPoint, Rotation);
+			currentSpawnPoint += FVector(0, BlockDimension, 0);
+		}
+	}
+
 }
 
 void AWorldGenerator::GenerateTree()

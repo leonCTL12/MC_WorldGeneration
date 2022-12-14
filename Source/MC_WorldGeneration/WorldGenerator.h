@@ -17,11 +17,15 @@ public:
 
 private:
 	UPROPERTY(EditAnywhere)
-		int width = 4;
+		int worldWidth = 40;
 	UPROPERTY(EditAnywhere)
-		int height = 4;
+		int worldLength = 40;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ASoilBlock> soilBlockClass;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AGrassBlock> glassBlockClass;
+
+	static const int BlockDimension = 100;
 
 	FVector origin;
 
