@@ -33,7 +33,6 @@ void AWorldGenerator::Tick(float DeltaTime)
 
 void AWorldGenerator::GenerateWorld()
 {
-
 	GenerateLand();
 	GenerateMountain();
 }
@@ -89,9 +88,9 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
 				spawnPoint.Z = height;
 
-				UE_LOG(LogTemp, Warning, TEXT("spawn location: %s"), *spawnPoint.ToString());
-				FMath::Clamp<int>(spawnPoint.X, 0, worldLength - 1);
-				FMath::Clamp<int>(spawnPoint.Y, 0, worldWidth - 1);
+				spawnPoint.X = FMath::Clamp<int>(spawnPoint.X, 0, worldLength - 1);
+				spawnPoint.Y = FMath::Clamp<int>(spawnPoint.Y, 0, worldWidth - 1);
+
 				SpawnBlock(grassBlockClass, spawnPoint);
 			}
 		}
