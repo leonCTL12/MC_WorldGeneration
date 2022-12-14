@@ -37,6 +37,10 @@ private:
 		int maxNumTree = 19;
 	UPROPERTY(EditAnywhere)
 		int minNumTree = 19;
+
+	UPROPERTY(EditAnywhere)
+		int maxTreeHeight = 8;
+	const int minTreeHeight = 5;
 #pragma endregion
 
 
@@ -45,8 +49,12 @@ private:
 		TSubclassOf<class ASoilBlock> soilBlockClass;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AGrassBlock> grassBlockClass;
-#pragma endregion
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class AWoodBlock> woodBlockClass;
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class ALeafBlock> leafwoodBlockClass;
 
+#pragma endregion
 
 	static const int BlockDimension = 100;
 	TSet<FVector> occupied;
@@ -67,5 +75,8 @@ private:
 	void SpawnBlock(TSubclassOf<class ABlockBase> blockClass, FVector location);
 
 	void BuildMountain(FVector peakPoint);
-	void GenerateTree();
+	void GenerateTrees();
+	void BuildTree(FVector rootPoint);
+	void BuildTreeLeaf(FVector topPoint);
+	bool randomWeightedBool(int percentage);
 };

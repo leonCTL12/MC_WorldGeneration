@@ -3,6 +3,8 @@
 #include "SoilBlock.h"
 #include "GrassBlock.h"
 #include "BlockBase.h"
+#include "WoodBlock.h"
+#include "LeafBlock.h"
 #include "WorldGenerator.h"
 
 // Sets default values
@@ -35,6 +37,7 @@ void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
 	GenerateMountain();
+	GenerateTrees();
 }
 
 void AWorldGenerator::GenerateLand()
@@ -63,7 +66,7 @@ void AWorldGenerator::GenerateMountain()
 
 	for (int i = 0; i < numberOfMountain; i++) {
 
-		FVector peakPoint = FVector(FMath::RandRange(0, worldLength), FMath::RandRange(0, worldWidth), FMath::RandRange(0, maxMountainHeight));
+		FVector peakPoint = FVector(FMath::RandRange(0, worldLength-1), FMath::RandRange(0, worldWidth-1), FMath::RandRange(0, maxMountainHeight));
 		BuildMountain(peakPoint);
 	}
 }
@@ -83,9 +86,8 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 	int previousExpansion = currentExpansion;
 	while (height > 1) {
 		height--;
-		int randomIndex = FMath::RandRange(0, 100);
 
-		if (randomIndex <= expandProbability) {
+		if (randomWeightedBool(expandProbability)) {
 			currentExpansion += FMath::RandRange(1, 2);
 		}
 
@@ -112,6 +114,92 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 	}
 }
 
+void AWorldGenerator::GenerateTrees()
+{
+	int numberOfTree = FMath::RandRange(minNumTree, maxNumTree);
+
+	for (int i = 0; i < numberOfTree; i++) {
+
+		FVector rootPoint = FVector(FMath::RandRange(0, worldLength-1), FMath::RandRange(0, worldWidth-1),1);
+
+		while (occupied.Contains(rootPoint)) {
+			rootPoint.Z++;
+		}
+
+		BuildTree(rootPoint);
+	}
+}
+
+void AWorldGenerator::BuildTree(FVector spawnPoint)
+{
+	int treeHeight = FMath::RandRange(minTreeHeight, maxTreeHeight);
+	for (int i = 0; i < treeHeight; i++) {
+		SpawnBlock(woodBlockClass, spawnPoint);
+		spawnPoint.Z++;
+	}
+	spawnPoint.Z--;
+	BuildTreeLeaf(spawnPoint);
+	
+}
+
+void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
+{
+	//Hardcoded procedure to spawn tree leaf
+#pragma region Top Layer
+	
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z+1));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y+1, topPoint.Z+1));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y-1, topPoint.Z+1));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X+1, topPoint.Y, topPoint.Z+1));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X-1, topPoint.Y, topPoint.Z+1));
+	
+#pragma endregion
+
+#pragma region Second Layer
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
+	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
+	const int probSideLeaf = 30;
+	if (randomWeightedBool(30)) {
+		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
+	}
+	if (randomWeightedBool(30)) {
+		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
+	}
+	if (randomWeightedBool(30)) {
+		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
+	}
+	if (randomWeightedBool(30)) {
+		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
+	}
+
+#pragma endregion
+
+#pragma region Third Layer
+	for (int i = topPoint.X - 2; i <= topPoint.X + 2; i++) {
+		for (int j = topPoint.Y - 2; j <= topPoint.Y + 2; j++) {
+
+			if (i == topPoint.X - 2 && (j == topPoint.Y - 2) && randomWeightedBool(30)) {
+				continue;
+			}
+			else if (i == topPoint.X + 2 && (j == topPoint.Y - 2) && randomWeightedBool(30)) {
+				continue;
+			}
+			else if (i == topPoint.X - 2 && (j == topPoint.Y + 2) && randomWeightedBool(30)) {
+				continue;
+			}
+			else if (i == topPoint.X + 2 && (j == topPoint.Y + 2) && randomWeightedBool(30)) {
+				continue;
+			}
+
+			SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 1));
+			SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 2));
+		}
+	}
+
+#pragma endregion
+}
 
 
 void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector location)
@@ -123,8 +211,8 @@ void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector lo
 	GetWorld()->SpawnActor<ABlockBase>(blockClass, origin+ location * BlockDimension, FRotator(0));
 }
 
-
-void AWorldGenerator::GenerateTree()
+bool AWorldGenerator::randomWeightedBool(int percentage)
 {
-
+	return percentage >= FMath::RandRange(0, 100);
 }
+
