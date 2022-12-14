@@ -34,6 +34,7 @@ private:
 		TSubclassOf<class AGrassBlock> grassBlockClass;
 
 	static const int BlockDimension = 100;
+	TSet<FVector> occupied;
 
 	FVector origin;
 
