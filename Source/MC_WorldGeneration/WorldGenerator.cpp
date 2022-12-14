@@ -19,7 +19,7 @@ void AWorldGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 
-	origin = GetActorLocation() - FVector(worldWidth * BlockDimension /2,worldLength * BlockDimension /2,0);
+	origin = GetActorLocation();
 
 	GenerateWorld();
 }
@@ -77,7 +77,6 @@ void AWorldGenerator::BuildMountain(FVector2D peakPoint_2D)
 	
 	UE_LOG(LogTemp, Warning, TEXT("Height = %d"), height);
 
-	//world->SpawnActor<AGrassBlock>(grassBlockClass, peakPoint, Rotation);
 
 	int currentExpansion = 1;
 	while (height > 1) {
@@ -91,7 +90,9 @@ void AWorldGenerator::BuildMountain(FVector2D peakPoint_2D)
 				FVector spawnPoint = peakPoint + FVector(length * BlockDimension, width * BlockDimension, 0); 
 				spawnPoint.Z = height * BlockDimension + origin.Z;
 				UE_LOG(LogTemp, Warning, TEXT("spawn location: %s"), *spawnPoint.ToString());
-				world->SpawnActor<AGrassBlock>(grassBlockClass, spawnPoint, Rotation);
+				if (spawnPoint.X < (origin.X + worldLength * BlockDimension) && spawnPoint.X >= origin.X && spawnPoint.Y < (origin.Y + worldWidth * BlockDimension) && spawnPoint.Y >= origin.Y) {
+					world->SpawnActor<AGrassBlock>(grassBlockClass, spawnPoint, Rotation);
+				}
 			}
 		}
 	}
