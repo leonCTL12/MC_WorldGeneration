@@ -23,6 +23,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 		int maxNumMountain = 19;
+
+	UPROPERTY(EditAnywhere)
+		int minNumMountain = 19;
 	UPROPERTY(EditAnywhere)
 		int maxMountainHeight = 5;
 	UPROPERTY(EditAnywhere)
@@ -45,6 +48,9 @@ public:
 private:
 	void GenerateLand();
 	void GenerateMountain();
-	void BuildMountain(FVector2D peakPoint_2D);
+
+	void SpawnBlock(TSubclassOf<class ABlockBase> blockClass, FVector location);
+
+	void BuildMountain(FVector peakPoint);
 	void GenerateTree();
 };

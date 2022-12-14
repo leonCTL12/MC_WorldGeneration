@@ -2,9 +2,8 @@
 
 #include "SoilBlock.h"
 #include "GrassBlock.h"
+#include "BlockBase.h"
 #include "WorldGenerator.h"
-
-#define LOG(x) ;
 
 // Sets default values
 AWorldGenerator::AWorldGenerator()
@@ -18,6 +17,7 @@ AWorldGenerator::AWorldGenerator()
 void AWorldGenerator::BeginPlay()
 {
 	Super::BeginPlay();
+	UE_LOG(LogTemp, Warning, TEXT("ZZ1"));
 
 	origin = GetActorLocation();
 
@@ -33,50 +33,49 @@ void AWorldGenerator::Tick(float DeltaTime)
 
 void AWorldGenerator::GenerateWorld()
 {
+
 	GenerateLand();
 	GenerateMountain();
 }
 
 void AWorldGenerator::GenerateLand()
 {
+
 	FRotator Rotation(0);
-	//GetWorld()->SpawnActor<ASoilBlock>(soilBlockClass, origin, Rotation);
 	
 	UWorld* world = GetWorld();
 
-	FVector currentSpawnPoint = origin;
+	FVector currentSpawnPoint(0);
 
 	for (int w = 0; w < worldWidth; w++) {
-		currentSpawnPoint += FVector(BlockDimension, 0, 0);
-		currentSpawnPoint.Y = origin.Y;
+		currentSpawnPoint.Y = 0;
 
 		for (int l = 0; l < worldLength; l++) {
-			world->SpawnActor<ASoilBlock>(soilBlockClass, currentSpawnPoint, Rotation);
-			currentSpawnPoint += FVector(0, BlockDimension, 0);
+			SpawnBlock(soilBlockClass, currentSpawnPoint);
+			currentSpawnPoint += FVector(0, 1, 0);
 		}
+		currentSpawnPoint += FVector(1, 0, 0);
 	}
 }
 
 void AWorldGenerator::GenerateMountain()
 {
-	int numberOfMountain = FMath::RandRange(0, maxNumMountain);
-	FVector2D origin_2D(origin.X, origin.Y);
+	int numberOfMountain = FMath::RandRange(minNumMountain, maxNumMountain);
+
 	for (int i = 0; i < numberOfMountain; i++) {
-		FVector2D peakPoint_2D = origin_2D + FVector2D(FMath::RandRange(0, worldLength)*BlockDimension, FMath::RandRange(0, worldWidth)*BlockDimension);
-		BuildMountain(peakPoint_2D);
+
+		FVector peakPoint = FVector(FMath::RandRange(0, worldLength), FMath::RandRange(0, worldWidth), FMath::RandRange(0, maxMountainHeight));
+		BuildMountain(peakPoint);
 	}
 }
 
-void AWorldGenerator::BuildMountain(FVector2D peakPoint_2D)
+void AWorldGenerator::BuildMountain(FVector peakPoint)
 {
-	int height = FMath::RandRange(1, maxMountainHeight);
 
 	FRotator Rotation(0);
-	FVector peakPoint(peakPoint_2D.X, peakPoint_2D.Y, height*BlockDimension + origin.Z);
 	UWorld* world = GetWorld();
 	
-	UE_LOG(LogTemp, Warning, TEXT("Height = %d"), height);
-
+	int height = peakPoint.Z;
 
 	int currentExpansion = 1;
 	while (height > 1) {
@@ -84,21 +83,27 @@ void AWorldGenerator::BuildMountain(FVector2D peakPoint_2D)
 
 		currentExpansion += FMath::RandRange(0,2);
 
-		for (int width = -currentExpansion; width < currentExpansion; width++) {
-			for (int length = -currentExpansion; length < currentExpansion; length++) {
+		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion; widthDelta++) {
+			for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion; lengthDelta++) {
 
-				FVector spawnPoint = peakPoint + FVector(length * BlockDimension, width * BlockDimension, 0); 
-				spawnPoint.Z = height * BlockDimension + origin.Z;
+				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
+				spawnPoint.Z = height;
+
 				UE_LOG(LogTemp, Warning, TEXT("spawn location: %s"), *spawnPoint.ToString());
-				if (spawnPoint.X < (origin.X + worldLength * BlockDimension) && spawnPoint.X >= origin.X && spawnPoint.Y < (origin.Y + worldWidth * BlockDimension) && spawnPoint.Y >= origin.Y) {
-					world->SpawnActor<AGrassBlock>(grassBlockClass, spawnPoint, Rotation);
-				}
+				FMath::Clamp<int>(spawnPoint.X, 0, worldLength - 1);
+				FMath::Clamp<int>(spawnPoint.Y, 0, worldWidth - 1);
+				SpawnBlock(grassBlockClass, spawnPoint);
 			}
 		}
 	}
 }
 
 
+
+void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector location)
+{
+	GetWorld()->SpawnActor<ABlockBase>(blockClass, origin+ location * BlockDimension, FRotator(0));
+}
 
 
 void AWorldGenerator::GenerateTree()
