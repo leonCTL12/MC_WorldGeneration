@@ -109,7 +109,6 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 		}
 
 		previousExpansion = currentExpansion;
-
 	}
 }
 

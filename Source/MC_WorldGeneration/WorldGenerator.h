@@ -16,26 +16,40 @@ public:
 	AWorldGenerator();
 
 private:
+#pragma region World
 	UPROPERTY(EditAnywhere)
 		int worldWidth = 40;
 	UPROPERTY(EditAnywhere)
 		int worldLength = 40;
+#pragma endregion
 
+#pragma region Mountain
 	UPROPERTY(EditAnywhere)
 		int maxNumMountain = 19;
-
 	UPROPERTY(EditAnywhere)
 		int minNumMountain = 19;
 	UPROPERTY(EditAnywhere)
 		int maxMountainHeight = 5;
+#pragma endregion
+
+#pragma region Tree
+	UPROPERTY(EditAnywhere)
+		int maxNumTree = 19;
+	UPROPERTY(EditAnywhere)
+		int minNumTree = 19;
+#pragma endregion
+
+
+#pragma region Block
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ASoilBlock> soilBlockClass;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AGrassBlock> grassBlockClass;
+#pragma endregion
+
 
 	static const int BlockDimension = 100;
 	TSet<FVector> occupied;
-
 	FVector origin;
 
 protected:
