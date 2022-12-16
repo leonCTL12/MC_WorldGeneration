@@ -21,6 +21,8 @@ private:
 		int worldWidth = 40;
 	UPROPERTY(EditAnywhere)
 		int worldLength = 40;
+	UPROPERTY(EditAnywhere)
+		float renderDistance = 1000;
 #pragma endregion
 
 #pragma region Mountain
@@ -60,6 +62,12 @@ private:
 	TSet<FVector> occupied;
 	FVector origin;
 
+	float XLowerBound;
+	float YLowerBound;
+	float XUpperBound;
+	float YUpperBound;
+
+	class ACharacter* player;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

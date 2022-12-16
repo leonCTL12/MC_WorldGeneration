@@ -5,7 +5,10 @@
 #include "BlockBase.h"
 #include "WoodBlock.h"
 #include "LeafBlock.h"
-#include "WorldGenerator.h"
+#include "WorldGenerator.h"	
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
+#include "GenericPlatform/GenericPlatformMath.h"
 
 // Sets default values
 AWorldGenerator::AWorldGenerator()
@@ -22,7 +25,7 @@ void AWorldGenerator::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("ZZ1"));
 
 	origin = GetActorLocation();
-
+	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	GenerateWorld();
 }
 
@@ -31,6 +34,14 @@ void AWorldGenerator::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	FVector playerLocation = player->GetActorLocation();
+
+	playerLocation =  (playerLocation - origin) / 100;
+	playerLocation.X = FGenericPlatformMath::RoundToInt(playerLocation.X);
+	playerLocation.Y = FGenericPlatformMath::RoundToInt(playerLocation.Y);
+	playerLocation.Z = FGenericPlatformMath::RoundToInt(playerLocation.Z);
+
+	UE_LOG(LogTemp, Warning, TEXT("Actor Location: %s"), *playerLocation.ToString());
 }
 
 void AWorldGenerator::GenerateWorld()
