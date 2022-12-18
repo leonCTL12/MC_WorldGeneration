@@ -6,6 +6,7 @@
 #include "WoodBlock.h"
 #include "LeafBlock.h"
 #include "WorldGenerator.h"	
+#include "MyMathUtility.h"
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Math/UnrealMathUtility.h"
@@ -55,8 +56,8 @@ void AWorldGenerator::Tick(float DeltaTime)
 void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
-	//GenerateMountain();
-	//GenerateTrees();
+	GenerateMountain();
+	GenerateTrees();
 }
 
 void AWorldGenerator::GenerateLand()
@@ -106,7 +107,7 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 	while (height > 1) {
 		height--;
 
-		if (RandomWeightedBool(expandProbability)) {
+		if (MyMathUtility::RandomWeightedBool(expandProbability)) {
 			currentExpansion += FMath::RandRange(1, 2);
 		}
 		
@@ -179,16 +180,16 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
 	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
 	const int probSideLeaf = 30;
-	if (RandomWeightedBool(30)) {
+	if (MyMathUtility::RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
 	}
-	if (RandomWeightedBool(30)) {
+	if (MyMathUtility::RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
 	}
-	if (RandomWeightedBool(30)) {
+	if (MyMathUtility::RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
 	}
-	if (RandomWeightedBool(30)) {
+	if (MyMathUtility::RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
 	}
 
@@ -198,16 +199,16 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	for (int i = topPoint.X - 2; i <= topPoint.X + 2; i++) {
 		for (int j = topPoint.Y - 2; j <= topPoint.Y + 2; j++) {
 
-			if (i == topPoint.X - 2 && (j == topPoint.Y - 2) && RandomWeightedBool(30)) {
+			if (i == topPoint.X - 2 && (j == topPoint.Y - 2) && MyMathUtility::RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X + 2 && (j == topPoint.Y - 2) && RandomWeightedBool(30)) {
+			else if (i == topPoint.X + 2 && (j == topPoint.Y - 2) && MyMathUtility::RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X - 2 && (j == topPoint.Y + 2) && RandomWeightedBool(30)) {
+			else if (i == topPoint.X - 2 && (j == topPoint.Y + 2) && MyMathUtility::RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X + 2 && (j == topPoint.Y + 2) && RandomWeightedBool(30)) {
+			else if (i == topPoint.X + 2 && (j == topPoint.Y + 2) && MyMathUtility::RandomWeightedBool(30)) {
 				continue;
 			}
 
@@ -238,12 +239,6 @@ void AWorldGenerator::ToggleBlock(FVector location, bool active)
 	}
 	ABlockBase** block_ptr_2 = occupied.Find(location);
 	(*block_ptr_2)->SetActive(active);
-}
-
-
-bool AWorldGenerator::RandomWeightedBool(int percentage)
-{
-	return percentage >= FMath::RandRange(0, 100);
 }
 
 void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)

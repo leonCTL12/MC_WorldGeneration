@@ -85,7 +85,6 @@ private:
 	void GenerateTrees();
 	void BuildTree(FVector rootPoint);
 	void BuildTreeLeaf(FVector topPoint);
-	bool RandomWeightedBool(int percentage);
 	void CheckMapExpansion(FVector normalisedPlayerLocation);
 	void ExpandMap(ExpandDirection direction);
 };
