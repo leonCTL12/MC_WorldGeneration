@@ -254,9 +254,9 @@ void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
 		ExpandMap(XLow);
 	}
 
-	//if (FMath::Abs(YUpperBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
-	//	ExpandMap(YUp);
-	//}
+	if (FMath::Abs(YUpperBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
+		ExpandMap(YUp);
+	}
 	//if (FMath::Abs(YLowerBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
 	//	ExpandMap(YLow);
 	//}
@@ -273,57 +273,46 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 			for (int x = XUpperBound; x < XUpperBound + dynamicGenChunkSize; x++) {
 				SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
-		}
 
-		for (int y = YLowerBound+1; y < YUpperBound; y++) {
-			for (int x = XLowerBound+1; x < XLowerBound + dynamicGenChunkSize+1; x++) {
+			for (int x = XLowerBound + 1; x < XLowerBound + dynamicGenChunkSize + 1; x++) {
 				ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
-		UE_LOG(LogTemp, Warning, TEXT(" Old X Upper Bound = %f,  Old X Lower Bound= %f"), XUpperBound, XLowerBound);
 
-		XUpperBound = XUpperBound+ dynamicGenChunkSize;
-		XLowerBound = XLowerBound + dynamicGenChunkSize;
-		UE_LOG(LogTemp, Warning, TEXT(" Dynamic Chunk = %d, New X Upper Bound = %f,  New X Lower Bound= %f"), dynamicGenChunkSize, XUpperBound, XLowerBound);
+		XUpperBound += dynamicGenChunkSize;
+		XLowerBound += dynamicGenChunkSize;
 
 		break;
 	case XLow:
-		UE_LOG(LogTemp, Warning, TEXT("Expand XLow!	"));
-
 		for (int y = YLowerBound+1; y < YUpperBound; y++) {
 			for (int x = XLowerBound; x > XLowerBound - dynamicGenChunkSize; x--) {
 				UE_LOG(LogTemp, Warning, TEXT("X= %d, Y= %d"), x, y);
-				SpawnBlock(soilBlockClass, FVector(x, y, 0));
+				SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
-		}
 
-		for (int y = YLowerBound + 1; y < YUpperBound; y++) {
 			for (int x = XUpperBound - 1; x > XUpperBound - dynamicGenChunkSize - 1; x--) {
 				ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
-
-		//UE_LOG(LogTemp, Warning, TEXT(" Old X Upper Bound = %d,  Old X Lower Bound= %d"), XUpperBound, XLowerBound);
-
-
 		XUpperBound-= dynamicGenChunkSize;
 		XLowerBound-= dynamicGenChunkSize;
-
-		//UE_LOG(LogTemp, Warning, TEXT(" New X Upper Bound = %d,  New X Lower Bound= %d"), XUpperBound, XLowerBound);
-
 		break;	
-	/*case YUp:
+
+	case YUp:
 		UE_LOG(LogTemp, Warning, TEXT("Expand YUp"));
 
-		for (int i = XLowerBound; i < XUpperBound; i++) {
-			SpawnBlock(grassBlockClass, FVector(i, YUpperBound, 0));
+		for (int x = XLowerBound+1; x < XUpperBound; x++) {
+			for (int y = YUpperBound; y < YUpperBound + dynamicGenChunkSize; y++) {
+				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+			}
+
+			for (int y = YLowerBound + 1; y < YLowerBound + dynamicGenChunkSize + 1; y++) {
+				ToggleBlock(FVector(x, y, 0), false);
+			}
 		}
 
-		for (int i = XLowerBound; i < XUpperBound; i++) {
-			ToggleBlock(FVector(i, YLowerBound, 0), false);
-		}
-		YUpperBound++;
-		YLowerBound++;
+		YUpperBound+= dynamicGenChunkSize;
+		YLowerBound+= dynamicGenChunkSize;
 
 		break;
 	case YLow:
@@ -340,7 +329,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 		YUpperBound--;
 		YLowerBound--;
 
-		break;*/
+		break;
 
 	default:
 		break;
