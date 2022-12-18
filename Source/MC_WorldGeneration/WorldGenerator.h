@@ -26,9 +26,11 @@ private:
 
 #pragma region Mountain
 	UPROPERTY(EditAnywhere)
-		int maxNumMountain = 19;
+//Define density as number per 100*100 blocks 
+		int maxMountainDensity = 20;
+
 	UPROPERTY(EditAnywhere)
-		int minNumMountain = 19;
+		int minMountainDensity = 10;
 	UPROPERTY(EditAnywhere)
 		int maxMountainHeight = 5;
 #pragma endregion
@@ -76,7 +78,7 @@ public:
 	void GenerateWorld();
 private:
 	void GenerateLand();
-	void GenerateMountain();
+	void GenerateMountain(FVector2D ptr1, FVector2D ptr2);
 
 	void SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector location);
 	void ToggleBlock(FVector location, bool active);

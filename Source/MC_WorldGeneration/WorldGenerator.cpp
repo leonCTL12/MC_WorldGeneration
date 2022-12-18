@@ -56,13 +56,12 @@ void AWorldGenerator::Tick(float DeltaTime)
 void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
-	GenerateMountain();
+	GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 	GenerateTrees();
 }
 
 void AWorldGenerator::GenerateLand()
 {
-
 	FRotator Rotation(0);
 	
 	UWorld* world = GetWorld();
@@ -80,8 +79,19 @@ void AWorldGenerator::GenerateLand()
 	}
 }
 
-void AWorldGenerator::GenerateMountain()
+void AWorldGenerator::GenerateMountain(FVector2D ptr1, FVector2D ptr2)
 {
+	UE_LOG(LogTemp, Warning, TEXT("ptr 1 = %s"), *ptr1.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("ptr 2 = %s"), *ptr2.ToString());
+
+	int area = FMath::Abs(ptr1.X - ptr2.X) * FMath::Abs(ptr1.Y - ptr2.Y);
+	UE_LOG(LogTemp, Warning, TEXT("Area = %d"), area);
+
+	int maxNumMountain = maxMountainDensity * area/10000;
+	int minNumMountain = minMountainDensity * area/10000;
+
+	UE_LOG(LogTemp, Warning, TEXT("Max Mount Num = %d , Min Mount Num = %d"), maxNumMountain, minNumMountain);
+
 	int numberOfMountain = FMath::RandRange(minNumMountain, maxNumMountain);
 
 	for (int i = 0; i < numberOfMountain; i++) {
@@ -93,7 +103,6 @@ void AWorldGenerator::GenerateMountain()
 
 void AWorldGenerator::BuildMountain(FVector peakPoint)
 {
-
 	FRotator Rotation(0);
 	UWorld* world = GetWorld();
 	
@@ -117,9 +126,6 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
 				spawnPoint.Z = height;
 
-				spawnPoint.X = FMath::Clamp<int>(spawnPoint.X, 0, renderDistance*2 - 1);
-				spawnPoint.Y = FMath::Clamp<int>(spawnPoint.Y, 0, renderDistance*2 - 1);
-				
 				if (height == peakPoint.Z-1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
 					SpawnBlock(grassBlockClass, spawnPoint);
 				}
