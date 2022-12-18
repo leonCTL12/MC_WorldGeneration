@@ -8,6 +8,7 @@
 #include "WorldGenerator.h"	
 #include "GameFramework/Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Math/UnrealMathUtility.h"
 #include "GenericPlatform/GenericPlatformMath.h"
 
 // Sets default values
@@ -26,6 +27,12 @@ void AWorldGenerator::BeginPlay()
 
 	origin = GetActorLocation();
 	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+	
+	XUpperBound = renderDistance * 2;
+	XLowerBound = -1;
+	YUpperBound = renderDistance*2;
+	YLowerBound = -1; 
+
 	GenerateWorld();
 }
 
@@ -39,16 +46,17 @@ void AWorldGenerator::Tick(float DeltaTime)
 	playerLocation =  (playerLocation - origin) / 100;
 	playerLocation.X = FGenericPlatformMath::RoundToInt(playerLocation.X);
 	playerLocation.Y = FGenericPlatformMath::RoundToInt(playerLocation.Y);
-	playerLocation.Z = FGenericPlatformMath::RoundToInt(playerLocation.Z);
-
-	UE_LOG(LogTemp, Warning, TEXT("Actor Location: %s"), *playerLocation.ToString());
+	
+	CheckMapExpansion(playerLocation);
 }
+
+
 
 void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
-	GenerateMountain();
-	GenerateTrees();
+	//GenerateMountain();
+	//GenerateTrees();
 }
 
 void AWorldGenerator::GenerateLand()
@@ -60,10 +68,10 @@ void AWorldGenerator::GenerateLand()
 
 	FVector currentSpawnPoint(0);
 
-	for (int w = 0; w < worldWidth; w++) {
+	for (int w = 0; w < renderDistance*2; w++) {
 		currentSpawnPoint.Y = 0;
 
-		for (int l = 0; l < worldLength; l++) {
+		for (int l = 0; l < renderDistance*2; l++) {
 			SpawnBlock(grassBlockClass, currentSpawnPoint);
 			currentSpawnPoint += FVector(0, 1, 0);
 		}
@@ -77,7 +85,7 @@ void AWorldGenerator::GenerateMountain()
 
 	for (int i = 0; i < numberOfMountain; i++) {
 
-		FVector peakPoint = FVector(FMath::RandRange(0, worldLength-1), FMath::RandRange(0, worldWidth-1), FMath::RandRange(0, maxMountainHeight));
+		FVector peakPoint = FVector(FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, maxMountainHeight));
 		BuildMountain(peakPoint);
 	}
 }
@@ -98,10 +106,9 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 	while (height > 1) {
 		height--;
 
-		if (randomWeightedBool(expandProbability)) {
+		if (RandomWeightedBool(expandProbability)) {
 			currentExpansion += FMath::RandRange(1, 2);
 		}
-
 		
 		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion+1; widthDelta++) {
 			for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion+1; lengthDelta++) {
@@ -109,8 +116,8 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
 				spawnPoint.Z = height;
 
-				spawnPoint.X = FMath::Clamp<int>(spawnPoint.X, 0, worldLength - 1);
-				spawnPoint.Y = FMath::Clamp<int>(spawnPoint.Y, 0, worldWidth - 1);
+				spawnPoint.X = FMath::Clamp<int>(spawnPoint.X, 0, renderDistance*2 - 1);
+				spawnPoint.Y = FMath::Clamp<int>(spawnPoint.Y, 0, renderDistance*2 - 1);
 				
 				if (height == peakPoint.Z-1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
 					SpawnBlock(grassBlockClass, spawnPoint);
@@ -131,7 +138,7 @@ void AWorldGenerator::GenerateTrees()
 
 	for (int i = 0; i < numberOfTree; i++) {
 
-		FVector rootPoint = FVector(FMath::RandRange(0, worldLength-1), FMath::RandRange(0, worldWidth-1),1);
+		FVector rootPoint = FVector(FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, renderDistance*2-1),1);
 
 		while (occupied.Contains(rootPoint)) {
 			rootPoint.Z++;
@@ -172,16 +179,16 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
 	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
 	const int probSideLeaf = 30;
-	if (randomWeightedBool(30)) {
+	if (RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
 	}
-	if (randomWeightedBool(30)) {
+	if (RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
 	}
-	if (randomWeightedBool(30)) {
+	if (RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
 	}
-	if (randomWeightedBool(30)) {
+	if (RandomWeightedBool(30)) {
 		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
 	}
 
@@ -191,16 +198,16 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	for (int i = topPoint.X - 2; i <= topPoint.X + 2; i++) {
 		for (int j = topPoint.Y - 2; j <= topPoint.Y + 2; j++) {
 
-			if (i == topPoint.X - 2 && (j == topPoint.Y - 2) && randomWeightedBool(30)) {
+			if (i == topPoint.X - 2 && (j == topPoint.Y - 2) && RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X + 2 && (j == topPoint.Y - 2) && randomWeightedBool(30)) {
+			else if (i == topPoint.X + 2 && (j == topPoint.Y - 2) && RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X - 2 && (j == topPoint.Y + 2) && randomWeightedBool(30)) {
+			else if (i == topPoint.X - 2 && (j == topPoint.Y + 2) && RandomWeightedBool(30)) {
 				continue;
 			}
-			else if (i == topPoint.X + 2 && (j == topPoint.Y + 2) && randomWeightedBool(30)) {
+			else if (i == topPoint.X + 2 && (j == topPoint.Y + 2) && RandomWeightedBool(30)) {
 				continue;
 			}
 
@@ -216,14 +223,118 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector location)
 {
 	if (occupied.Contains(location)) {
+		UE_LOG(LogTemp, Warning, TEXT("location occupied"));
+		ToggleBlock(location, true);
 		return;
 	}
-	occupied.Add(location);
-	GetWorld()->SpawnActor<ABlockBase>(blockClass, origin+ location * BlockDimension, FRotator(0));
+
+	occupied.Add(location, GetWorld()->SpawnActor<ABlockBase>(blockClass, origin + location * BlockDimension, FRotator(0)) );
 }
 
-bool AWorldGenerator::randomWeightedBool(int percentage)
+void AWorldGenerator::ToggleBlock(FVector location, bool active)
+{
+	if (!occupied.Contains(location)) {
+		return;
+	}
+	ABlockBase** block_ptr_2 = occupied.Find(location);
+	(*block_ptr_2)->SetActive(false);
+}
+
+
+bool AWorldGenerator::RandomWeightedBool(int percentage)
 {
 	return percentage >= FMath::RandRange(0, 100);
+}
+
+void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
+{
+	if (FMath::Abs(XUpperBound - normalizedPlayerLocation.X) <= expansionTriggerDistance) {
+		ExpandMap(XUp);
+	} else if (FMath::Abs(XLowerBound - normalizedPlayerLocation.X) <= expansionTriggerDistance) {
+		ExpandMap(XLow);
+	}
+
+	//if (FMath::Abs(YUpperBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
+	//	ExpandMap(YUp);
+	//}
+	//if (FMath::Abs(YLowerBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
+	//	ExpandMap(YLow);
+	//}
+}
+
+void AWorldGenerator::ExpandMap(ExpandDirection direction)
+{
+	switch (direction)
+	{
+	case XUp:
+		UE_LOG(LogTemp, Warning, TEXT("Expand XUp"));
+
+		for (int y = YLowerBound+1; y < YUpperBound; y++) {
+			for (int x = XUpperBound; x < XUpperBound + dynamicGenChunkSize; x++) {
+				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+			}
+		}
+
+		for (int y = YLowerBound+1; y < YUpperBound; y++) {
+			for (int x = XLowerBound+1; x < XLowerBound + dynamicGenChunkSize+1; x++) {
+				ToggleBlock(FVector(x, y, 0), false);
+			}
+		}
+		XUpperBound+=dynamicGenChunkSize;
+		XLowerBound+=dynamicGenChunkSize;
+		break;
+	case XLow:
+		UE_LOG(LogTemp, Warning, TEXT("Expand XLow	"));
+
+		for (int y = YLowerBound+1; y < YUpperBound; y++) {
+			for (int x = XLowerBound; x > XLowerBound - 3; x--) {
+				UE_LOG(LogTemp, Warning, TEXT("X= %d, Y= %d"), x, y);
+				SpawnBlock(soilBlockClass, FVector(x, y, 0));
+			}
+		}
+
+		for (int y = YLowerBound; y < YUpperBound; y++) {
+			for (int x = XUpperBound; x < XUpperBound - dynamicGenChunkSize; x--) {
+				ToggleBlock(FVector(x, y, 0), false);
+			}
+		}
+
+		XUpperBound-= dynamicGenChunkSize;
+		XLowerBound-= dynamicGenChunkSize;
+
+		break;	
+	case YUp:
+		UE_LOG(LogTemp, Warning, TEXT("Expand YUp"));
+
+		for (int i = XLowerBound; i < XUpperBound; i++) {
+			SpawnBlock(grassBlockClass, FVector(i, YUpperBound, 0));
+		}
+
+		for (int i = XLowerBound; i < XUpperBound; i++) {
+			ToggleBlock(FVector(i, YLowerBound, 0), false);
+		}
+		YUpperBound++;
+		YLowerBound++;
+
+		break;
+	case YLow:
+		UE_LOG(LogTemp, Warning, TEXT("Expand YLow"));
+
+		for (int i = XLowerBound; i < XUpperBound; i++) {
+			SpawnBlock(grassBlockClass, FVector(i, YLowerBound, 0));
+		}
+
+		for (int i = XLowerBound; i < XUpperBound; i++) {
+			ToggleBlock(FVector(i, YUpperBound, 0), false);
+		}
+
+		YUpperBound--;
+		YLowerBound--;
+
+		break;
+
+	default:
+		break;
+	}
 }
 

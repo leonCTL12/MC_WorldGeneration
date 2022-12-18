@@ -1,7 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 #include "WorldGenerator.generated.h"
@@ -10,19 +9,19 @@ UCLASS()
 class MC_WORLDGENERATION_API AWorldGenerator : public AActor
 {
 	GENERATED_BODY()
-	
 public:	
 	// Sets default values for this actor's properties
 	AWorldGenerator();
-
+	enum ExpandDirection {XUp, XLow, YUp,YLow};
 private:
 #pragma region World
+	//This is the normalized render distance
 	UPROPERTY(EditAnywhere)
-		int worldWidth = 40;
+		int renderDistance = 5;
 	UPROPERTY(EditAnywhere)
-		int worldLength = 40;
+		int expansionTriggerDistance = 1;
 	UPROPERTY(EditAnywhere)
-		float renderDistance = 1000;
+		int dynamicGenChunkSize = 2;
 #pragma endregion
 
 #pragma region Mountain
@@ -39,7 +38,6 @@ private:
 		int maxNumTree = 19;
 	UPROPERTY(EditAnywhere)
 		int minNumTree = 19;
-
 	UPROPERTY(EditAnywhere)
 		int maxTreeHeight = 8;
 	const int minTreeHeight = 5;
@@ -59,7 +57,7 @@ private:
 #pragma endregion
 
 	static const int BlockDimension = 100;
-	TSet<FVector> occupied;
+	TMap<FVector,class ABlockBase*> occupied;
 	FVector origin;
 
 	float XLowerBound;
@@ -80,11 +78,14 @@ private:
 	void GenerateLand();
 	void GenerateMountain();
 
-	void SpawnBlock(TSubclassOf<class ABlockBase> blockClass, FVector location);
+	void SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector location);
+	void ToggleBlock(FVector location, bool active);
 
 	void BuildMountain(FVector peakPoint);
 	void GenerateTrees();
 	void BuildTree(FVector rootPoint);
 	void BuildTreeLeaf(FVector topPoint);
-	bool randomWeightedBool(int percentage);
+	bool RandomWeightedBool(int percentage);
+	void CheckMapExpansion(FVector normalisedPlayerLocation);
+	void ExpandMap(ExpandDirection direction);
 };

@@ -38,3 +38,4 @@ void ABlockBase::SetActive(bool active)
 	SetActorEnableCollision(active);
 }
 
+
