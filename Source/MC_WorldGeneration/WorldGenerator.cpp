@@ -256,10 +256,9 @@ void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
 
 	if (FMath::Abs(YUpperBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
 		ExpandMap(YUp);
+	} else if (FMath::Abs(YLowerBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
+		ExpandMap(YLow);
 	}
-	//if (FMath::Abs(YLowerBound - normalizedPlayerLocation.Y) <= expansionTriggerDistance) {
-	//	ExpandMap(YLow);
-	//}
 }
 
 void AWorldGenerator::ExpandMap(ExpandDirection direction)
@@ -318,16 +317,17 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 	case YLow:
 		UE_LOG(LogTemp, Warning, TEXT("Expand YLow"));
 
-		for (int i = XLowerBound; i < XUpperBound; i++) {
-			SpawnBlock(grassBlockClass, FVector(i, YLowerBound, 0));
+		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
+			for (int y = YLowerBound; y > YLowerBound - dynamicGenChunkSize; y--) {
+				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+			}
+			for (int y = YUpperBound - 1; y > YUpperBound - dynamicGenChunkSize - 1; y--) {
+				ToggleBlock(FVector(x, y, 0), false);
+			}
 		}
 
-		for (int i = XLowerBound; i < XUpperBound; i++) {
-			ToggleBlock(FVector(i, YUpperBound, 0), false);
-		}
-
-		YUpperBound--;
-		YLowerBound--;
+		YUpperBound-=dynamicGenChunkSize;
+		YLowerBound -= dynamicGenChunkSize;
 
 		break;
 
