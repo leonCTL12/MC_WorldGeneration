@@ -14,6 +14,8 @@ public:
 	AWorldGenerator();
 	enum ExpandDirection {XUp, XLow, YUp,YLow};
 private:
+	static const int DensityDivisor = 10000;
+
 #pragma region World
 	//This is the normalized render distance
 	UPROPERTY(EditAnywhere)
@@ -25,10 +27,9 @@ private:
 #pragma endregion
 
 #pragma region Mountain
+	//Define density as number per 100*100 blocks 
 	UPROPERTY(EditAnywhere)
-//Define density as number per 100*100 blocks 
 		int maxMountainDensity = 20;
-
 	UPROPERTY(EditAnywhere)
 		int minMountainDensity = 10;
 	UPROPERTY(EditAnywhere)
@@ -37,9 +38,9 @@ private:
 
 #pragma region Tree
 	UPROPERTY(EditAnywhere)
-		int maxNumTree = 19;
+		int maxTreeDensity = 300;
 	UPROPERTY(EditAnywhere)
-		int minNumTree = 19;
+		int minTreeDensity = 200;
 	UPROPERTY(EditAnywhere)
 		int maxTreeHeight = 8;
 	const int minTreeHeight = 5;
@@ -78,13 +79,13 @@ public:
 	void GenerateWorld();
 private:
 	void GenerateLand();
-	void GenerateMountain(FVector2D ptr1, FVector2D ptr2);
+	void GenerateMountain(FVector2D minPtr, FVector2D maxPtr);
 
 	void SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector location);
 	void ToggleBlock(FVector location, bool active);
 
 	void BuildMountain(FVector peakPoint);
-	void GenerateTrees();
+	void GenerateTrees(FVector2D minPtr, FVector2D maxPtr);
 	void BuildTree(FVector rootPoint);
 	void BuildTreeLeaf(FVector topPoint);
 	void CheckMapExpansion(FVector normalisedPlayerLocation);

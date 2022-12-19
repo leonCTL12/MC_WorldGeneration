@@ -57,7 +57,7 @@ void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
 	GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
-	GenerateTrees();
+	GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 }
 
 void AWorldGenerator::GenerateLand()
@@ -79,24 +79,18 @@ void AWorldGenerator::GenerateLand()
 	}
 }
 
-void AWorldGenerator::GenerateMountain(FVector2D ptr1, FVector2D ptr2)
+void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 {
-	UE_LOG(LogTemp, Warning, TEXT("ptr 1 = %s"), *ptr1.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("ptr 2 = %s"), *ptr2.ToString());
+	int area = MyMathUtility::AreaBoundedByTwoPoints(minPtr, maxPtr);
 
-	int area = FMath::Abs(ptr1.X - ptr2.X) * FMath::Abs(ptr1.Y - ptr2.Y);
-	UE_LOG(LogTemp, Warning, TEXT("Area = %d"), area);
-
-	int maxNumMountain = maxMountainDensity * area/10000;
-	int minNumMountain = minMountainDensity * area/10000;
-
-	UE_LOG(LogTemp, Warning, TEXT("Max Mount Num = %d , Min Mount Num = %d"), maxNumMountain, minNumMountain);
+	int maxNumMountain = MyMathUtility::DensityToCount(maxTreeDensity, area, DensityDivisor);
+	int minNumMountain = MyMathUtility::DensityToCount(minTreeDensity, area, DensityDivisor);
 
 	int numberOfMountain = FMath::RandRange(minNumMountain, maxNumMountain);
 
 	for (int i = 0; i < numberOfMountain; i++) {
 
-		FVector peakPoint = FVector(FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, maxMountainHeight));
+		FVector peakPoint = FVector(FMath::RandRange(minPtr.X, maxPtr.X), FMath::RandRange(minPtr.Y, maxPtr.Y), FMath::RandRange(0, maxMountainHeight));
 		BuildMountain(peakPoint);
 	}
 }
@@ -139,13 +133,19 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 	}
 }
 
-void AWorldGenerator::GenerateTrees()
+void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 {
+
+	int area = MyMathUtility::AreaBoundedByTwoPoints(minPtr, maxPtr);
+
+	int minNumTree = MyMathUtility::DensityToCount(minTreeDensity, area, DensityDivisor);
+	int maxNumTree = MyMathUtility::DensityToCount(maxTreeDensity, area, DensityDivisor);
+
 	int numberOfTree = FMath::RandRange(minNumTree, maxNumTree);
 
 	for (int i = 0; i < numberOfTree; i++) {
 
-		FVector rootPoint = FVector(FMath::RandRange(0, renderDistance*2-1), FMath::RandRange(0, renderDistance*2-1),1);
+		FVector rootPoint = FVector(FMath::RandRange(minPtr.X, maxPtr.X), FMath::RandRange(minPtr.Y, maxPtr.Y), 1);
 
 		while (occupied.Contains(rootPoint)) {
 			rootPoint.Z++;
@@ -226,7 +226,6 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 #pragma endregion
 }
 
-
 void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector location)
 {
 	if (occupied.Contains(location)) {
@@ -281,7 +280,10 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		XUpperBound += dynamicGenChunkSize;
 		XLowerBound += dynamicGenChunkSize;
-
+		
+		GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+		GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+		
 		break;
 	case XLow:
 		for (int y = YLowerBound+1; y < YUpperBound; y++) {
@@ -296,6 +298,10 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 		}
 		XUpperBound-= dynamicGenChunkSize;
 		XLowerBound-= dynamicGenChunkSize;
+
+		GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound+dynamicGenChunkSize, YUpperBound));
+		GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound+dynamicGenChunkSize, YUpperBound));
+
 		break;	
 
 	case YUp:
