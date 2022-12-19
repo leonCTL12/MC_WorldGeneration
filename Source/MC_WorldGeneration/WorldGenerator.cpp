@@ -5,6 +5,7 @@
 #include "BlockBase.h"
 #include "WoodBlock.h"
 #include "LeafBlock.h"
+#include "BlockSpawner.h"
 #include "WorldGenerator.h"	
 #include "MyMathUtility.h"
 #include "GameFramework/Character.h"
@@ -17,7 +18,7 @@ AWorldGenerator::AWorldGenerator()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-
+	ensure(blockSpawner);
 }
 
 // Called when the game starts or when spawned
@@ -64,15 +65,12 @@ void AWorldGenerator::GenerateLand()
 {
 	FRotator Rotation(0);
 	
-	UWorld* world = GetWorld();
-
 	FVector currentSpawnPoint(0);
 
 	for (int w = 0; w < renderDistance*2; w++) {
 		currentSpawnPoint.Y = 0;
-
 		for (int l = 0; l < renderDistance*2; l++) {
-			SpawnBlock(grassBlockClass, currentSpawnPoint);
+			blockSpawner-> SpawnBlock(grassBlockClass, currentSpawnPoint);
 			currentSpawnPoint += FVector(0, 1, 0);
 		}
 		currentSpawnPoint += FVector(1, 0, 0);
@@ -121,10 +119,10 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 				spawnPoint.Z = height;
 
 				if (height == peakPoint.Z-1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
-					SpawnBlock(grassBlockClass, spawnPoint);
+					blockSpawner->SpawnBlock(grassBlockClass, spawnPoint);
 				}
 				else {
-					SpawnBlock(soilBlockClass, spawnPoint);
+					blockSpawner->SpawnBlock(soilBlockClass, spawnPoint);
 				}
 			}
 		}
@@ -159,7 +157,7 @@ void AWorldGenerator::BuildTree(FVector spawnPoint)
 {
 	int treeHeight = FMath::RandRange(minTreeHeight, maxTreeHeight);
 	for (int i = 0; i < treeHeight; i++) {
-		SpawnBlock(woodBlockClass, spawnPoint);
+		blockSpawner->SpawnBlock(woodBlockClass, spawnPoint);
 		spawnPoint.Z++;
 	}
 	spawnPoint.Z--;
@@ -172,31 +170,31 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	//Hardcoded procedure to spawn tree leaf
 #pragma region Top Layer
 	
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z+1));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y+1, topPoint.Z+1));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y-1, topPoint.Z+1));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X+1, topPoint.Y, topPoint.Z+1));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X-1, topPoint.Y, topPoint.Z+1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z+1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y+1, topPoint.Z+1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y-1, topPoint.Z+1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X+1, topPoint.Y, topPoint.Z+1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X-1, topPoint.Y, topPoint.Z+1));
 	
 #pragma endregion
 
 #pragma region Second Layer
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
-	SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
 	const int probSideLeaf = 30;
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
+		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
+		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
+		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
+		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
 	}
 
 #pragma endregion
@@ -218,33 +216,14 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 				continue;
 			}
 
-			SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 1));
-			SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 2));
+			blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 1));
+			blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 2));
 		}
 	}
 
 #pragma endregion
 }
 
-void AWorldGenerator::SpawnBlock(TSubclassOf<ABlockBase> blockClass , FVector location)
-{
-	if (occupied.Contains(location)) {
-		UE_LOG(LogTemp, Warning, TEXT("location occupied"));
-		ToggleBlock(location, true);
-		return;
-	}
-
-	occupied.Add(location, GetWorld()->SpawnActor<ABlockBase>(blockClass, origin + location * BlockDimension, FRotator(0)) );
-}
-
-void AWorldGenerator::ToggleBlock(FVector location, bool active)
-{
-	if (!occupied.Contains(location)) {
-		return;
-	}
-	ABlockBase** block_ptr_2 = occupied.Find(location);
-	(*block_ptr_2)->SetActive(active);
-}
 
 void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
 {
@@ -270,11 +249,11 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int y = YLowerBound+1; y < YUpperBound; y++) {
 			for (int x = XUpperBound; x < XUpperBound + dynamicGenChunkSize; x++) {
-				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+				blockSpawner->SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
 
 			for (int x = XLowerBound + 1; x < XLowerBound + dynamicGenChunkSize + 1; x++) {
-				ToggleBlock(FVector(x, y, 0), false);
+				blockSpawner->ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
 
@@ -289,11 +268,11 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 		for (int y = YLowerBound+1; y < YUpperBound; y++) {
 			for (int x = XLowerBound; x > XLowerBound - dynamicGenChunkSize; x--) {
 				UE_LOG(LogTemp, Warning, TEXT("X= %d, Y= %d"), x, y);
-				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+				blockSpawner->SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
 
 			for (int x = XUpperBound - 1; x > XUpperBound - dynamicGenChunkSize - 1; x--) {
-				ToggleBlock(FVector(x, y, 0), false);
+				blockSpawner->ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
 		XUpperBound-= dynamicGenChunkSize;
@@ -309,11 +288,11 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int x = XLowerBound+1; x < XUpperBound; x++) {
 			for (int y = YUpperBound; y < YUpperBound + dynamicGenChunkSize; y++) {
-				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+				blockSpawner->SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
 
 			for (int y = YLowerBound + 1; y < YLowerBound + dynamicGenChunkSize + 1; y++) {
-				ToggleBlock(FVector(x, y, 0), false);
+				blockSpawner->ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
 
@@ -326,10 +305,10 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
 			for (int y = YLowerBound; y > YLowerBound - dynamicGenChunkSize; y--) {
-				SpawnBlock(grassBlockClass, FVector(x, y, 0));
+				blockSpawner->SpawnBlock(grassBlockClass, FVector(x, y, 0));
 			}
 			for (int y = YUpperBound - 1; y > YUpperBound - dynamicGenChunkSize - 1; y--) {
-				ToggleBlock(FVector(x, y, 0), false);
+				blockSpawner->ToggleBlock(FVector(x, y, 0), false);
 			}
 		}
 

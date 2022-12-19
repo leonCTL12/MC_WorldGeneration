@@ -56,11 +56,12 @@ private:
 		TSubclassOf<class AWoodBlock> woodBlockClass;
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ALeafBlock> leafwoodBlockClass;
-
+	UPROPERTY(EditAnywhere)
+		class ABlockSpawner* blockSpawner;
 #pragma endregion
 
 	static const int BlockDimension = 100;
-	TMap<FVector,class ABlockBase*> occupied;
+	TMap<FVector,class ABlockBase*> occupied;	
 	FVector origin;
 
 	float XLowerBound;
@@ -80,9 +81,6 @@ public:
 private:
 	void GenerateLand();
 	void GenerateMountain(FVector2D minPtr, FVector2D maxPtr);
-
-	void SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector location);
-	void ToggleBlock(FVector location, bool active);
 
 	void BuildMountain(FVector peakPoint);
 	void GenerateTrees(FVector2D minPtr, FVector2D maxPtr);
