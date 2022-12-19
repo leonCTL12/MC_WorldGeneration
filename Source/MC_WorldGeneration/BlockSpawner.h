@@ -14,10 +14,10 @@ class MC_WORLDGENERATION_API ABlockSpawner : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ABlockSpawner();
+	FVector origin;
 
 private:
 	TMap<FVector, class ABlockBase*> occupied;
-	FVector origin;
 	static const int BlockDimension = 100;
 
 protected:
@@ -30,7 +30,7 @@ public:
 
 	void SpawnBlock(TSubclassOf<class ABlockBase> blockClass, FVector location);
 	void ToggleBlock(FVector location, bool active);
-
+	bool QueryOccupiedLocation(FVector location);
 
 	
 };

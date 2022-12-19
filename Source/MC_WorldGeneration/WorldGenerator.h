@@ -60,9 +60,6 @@ private:
 		class ABlockSpawner* blockSpawner;
 #pragma endregion
 
-	static const int BlockDimension = 100;
-	TMap<FVector,class ABlockBase*> occupied;	
-	FVector origin;
 
 	float XLowerBound;
 	float YLowerBound;

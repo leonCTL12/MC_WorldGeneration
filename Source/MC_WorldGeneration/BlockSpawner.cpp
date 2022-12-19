@@ -30,8 +30,7 @@ void ABlockSpawner::Tick(float DeltaTime)
 
 void ABlockSpawner::SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector location)
 {
-	if (occupied.Contains(location)) {
-		UE_LOG(LogTemp, Warning, TEXT("location occupied"));
+	if (QueryOccupiedLocation(location)) {
 		ToggleBlock(location, true);
 		return;
 	}
@@ -41,9 +40,15 @@ void ABlockSpawner::SpawnBlock(TSubclassOf<ABlockBase> blockClass, FVector locat
 
 void ABlockSpawner::ToggleBlock(FVector location, bool active)
 {
-	if (!occupied.Contains(location)) {
+	if (!QueryOccupiedLocation(location)) {
 		return;
 	}
 	ABlockBase** block_ptr_2 = occupied.Find(location);
 	(*block_ptr_2)->SetActive(active);
+}
+
+
+bool ABlockSpawner::QueryOccupiedLocation(FVector location)
+{
+	return occupied.Contains(location);
 }

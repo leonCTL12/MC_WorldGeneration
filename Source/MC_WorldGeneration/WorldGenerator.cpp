@@ -27,7 +27,6 @@ void AWorldGenerator::BeginPlay()
 	Super::BeginPlay();
 	UE_LOG(LogTemp, Warning, TEXT("ZZ2"));
 
-	origin = GetActorLocation();
 	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	
 	XUpperBound = renderDistance * 2;
@@ -45,14 +44,12 @@ void AWorldGenerator::Tick(float DeltaTime)
 
 	FVector playerLocation = player->GetActorLocation();
 
-	playerLocation =  (playerLocation - origin) / 100;
+	playerLocation =  (playerLocation - blockSpawner->origin) / 100;
 	playerLocation.X = FGenericPlatformMath::RoundToInt(playerLocation.X);
 	playerLocation.Y = FGenericPlatformMath::RoundToInt(playerLocation.Y);
 	
 	CheckMapExpansion(playerLocation);
 }
-
-
 
 void AWorldGenerator::GenerateWorld()
 {
@@ -77,6 +74,7 @@ void AWorldGenerator::GenerateLand()
 	}
 }
 
+#pragma region Mountain Generation
 void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 {
 	int area = MyMathUtility::AreaBoundedByTwoPoints(minPtr, maxPtr);
@@ -97,7 +95,7 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 {
 	FRotator Rotation(0);
 	UWorld* world = GetWorld();
-	
+
 	int height = peakPoint.Z;
 
 	//probability to expand (in percent)
@@ -111,14 +109,14 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 		if (MyMathUtility::RandomWeightedBool(expandProbability)) {
 			currentExpansion += FMath::RandRange(1, 2);
 		}
-		
-		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion+1; widthDelta++) {
-			for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion+1; lengthDelta++) {
-				
+
+		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion + 1; widthDelta++) {
+			for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion + 1; lengthDelta++) {
+
 				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
 				spawnPoint.Z = height;
 
-				if (height == peakPoint.Z-1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
+				if (height == peakPoint.Z - 1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
 					blockSpawner->SpawnBlock(grassBlockClass, spawnPoint);
 				}
 				else {
@@ -130,7 +128,9 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 		previousExpansion = currentExpansion;
 	}
 }
+#pragma endregion
 
+#pragma region Tree Generation
 void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 {
 
@@ -145,7 +145,7 @@ void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 
 		FVector rootPoint = FVector(FMath::RandRange(minPtr.X, maxPtr.X), FMath::RandRange(minPtr.Y, maxPtr.Y), 1);
 
-		while (occupied.Contains(rootPoint)) {
+		while (blockSpawner->QueryOccupiedLocation(rootPoint)) {
 			rootPoint.Z++;
 		}
 
@@ -162,20 +162,20 @@ void AWorldGenerator::BuildTree(FVector spawnPoint)
 	}
 	spawnPoint.Z--;
 	BuildTreeLeaf(spawnPoint);
-	
+
 }
 
 void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 {
 	//Hardcoded procedure to spawn tree leaf
 #pragma region Top Layer
-	
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z+1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y+1, topPoint.Z+1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y-1, topPoint.Z+1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X+1, topPoint.Y, topPoint.Z+1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X-1, topPoint.Y, topPoint.Z+1));
-	
+
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z + 1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z + 1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z + 1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z + 1));
+	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z + 1));
+
 #pragma endregion
 
 #pragma region Second Layer
@@ -185,7 +185,7 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
 	const int probSideLeaf = 30;
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y-1, topPoint.Z));
+		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y - 1, topPoint.Z));
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
 		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
@@ -223,6 +223,7 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 
 #pragma endregion
 }
+#pragma endregion
 
 
 void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
