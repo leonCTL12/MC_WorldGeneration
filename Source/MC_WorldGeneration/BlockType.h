@@ -11,6 +11,7 @@
  */
 enum BlockType
 {
+	none,
 	grass,
 	soil,
 	wood,

@@ -66,6 +66,12 @@ private:
 	float XUpperBound;
 	float YUpperBound;
 
+	float XMinBound;
+	float YMinBound;
+	float XMaxBound;
+	float YMaxBound;
+	
+
 	class ACharacter* player;
 protected:
 	// Called when the game starts or when spawned
