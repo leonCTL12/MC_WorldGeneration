@@ -22,6 +22,19 @@ void ABlockBase::BeginPlay()
 	}
 }
 
+void ABlockBase::Enable(FVector location)
+{
+	alive = true;
+	SetActive(true);
+	SetActorLocation(location);
+}
+
+void ABlockBase::Disable()
+{
+	alive = false;
+	SetActive(false);
+}
+
 // Called every frame
 void ABlockBase::Tick(float DeltaTime)
 {

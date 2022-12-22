@@ -9,11 +9,10 @@
 UCLASS()
 class MC_WORLDGENERATION_API ABlockBase : public AActor
 {
+	friend class BlockPool;
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
-	ABlockBase();
 	static int BlockDimension;
 
 private:
@@ -21,13 +20,17 @@ private:
 	bool bDefaultDisable = false;
 	UPROPERTY(EditAnywhere)
 		bool bAlwaysDisableTick = true;
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
+	bool alive = false;
 public:	
+	// Sets default values for this actor's properties
+	ABlockBase();
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SetActive(bool Active);
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+private: 
+	void Enable(FVector location);
+	void Disable();
 };

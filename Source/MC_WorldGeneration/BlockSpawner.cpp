@@ -2,6 +2,7 @@
 
 
 #include "BlockSpawner.h"
+#include "BlockPool.h"
 #include "BlockBase.h"
 
 // Sets default values
@@ -17,7 +18,7 @@ void ABlockSpawner::BeginPlay()
 {
 	Super::BeginPlay();
 	origin = GetActorLocation();
-
+	
 }
 
 // Called every frame
