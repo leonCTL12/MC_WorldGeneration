@@ -24,7 +24,7 @@ private:
 public:
 	ABlockBase* CreateBlock(UWorld* world, BlockType blockType);
 	void DestroyBlock(ABlockBase* block, BlockType blockType);
-private:
+private:	
 	std::stack<ABlockBase*>* LocatePool(BlockType blockType);
 	TSubclassOf<ABlockBase> LocateBlockClass(BlockType blockType);
 };

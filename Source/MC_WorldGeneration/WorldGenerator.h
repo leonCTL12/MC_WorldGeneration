@@ -49,14 +49,6 @@ private:
 
 #pragma region Block
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class ASoilBlock> soilBlockClass;
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AGrassBlock> grassBlockClass;
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class AWoodBlock> woodBlockClass;
-	UPROPERTY(EditAnywhere)
-		TSubclassOf<class ALeafBlock> leafwoodBlockClass;
-	UPROPERTY(EditAnywhere)
 		class ABlockSpawner* blockSpawner;
 #pragma endregion
 

@@ -34,33 +34,40 @@ void ABlockSpawner::Tick(float DeltaTime)
 
 }
 
-//When this is called, we are sure that 
-void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType = none )
-{
-	//Spawning Old Block
-	if (blockType == none) {
+//Spawn a new block at the location
 
+//It is World Generator's responsibility to ensure that each location only has one block
+void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType )
+{
+	ABlockBase* block = nullptr;
+	if (QueryOccupiedLocation(location)) {
+		auto blockInfo = persistent_occupied.Find(location);
+	    block = pool->CreateBlock(GetWorld(), blockInfo->Key);
 	}
-	else { //Spawning new Block
-		if (QueryOccupiedLocation(location)) {
-			return;
-		}
-		ABlockBase* block = pool->CreateBlock(GetWorld(), blockType);
-		block->SetActorLocation(location*BlockDimension + origin);
+	else {
+		block = pool->CreateBlock(GetWorld(), blockType);
 		TPair<BlockType, ABlockBase* > pair(blockType, block);
 		persistent_occupied.Add(location, pair);
 	}
 
+	block->SetActorLocation(location * BlockDimension + origin);
+
 }
 
 
-void ABlockSpawner::DestroyBlock(FVector location)
+void ABlockSpawner::DestoryBlock(FVector location, bool permanent = false)
 {
-	/*if (!QueryOccupiedLocation(location)) {
+	if (!QueryOccupiedLocation(location)) {
 		return;
 	}
-	ABlockBase** block_ptr_2 = persistent_occupied.Find(location);
-	(*block_ptr_2)->SetActive(active);*/
+
+	if (permanent) {
+		//TODO: Implement Permanent Destroy when mining mechanism is implemented
+	}
+	else {
+		auto blockInfo = persistent_occupied.Find(location);
+		pool->DestroyBlock(blockInfo->Value, blockInfo->Key);
+	}
 }
 
 

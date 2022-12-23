@@ -41,7 +41,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SpawnBlock(FVector location, BlockType blockType);
-	void DestroyBlock(FVector location);
+	void DestoryBlock(FVector location, bool permanent);
 	bool QueryOccupiedLocation(FVector location);
 
 	
