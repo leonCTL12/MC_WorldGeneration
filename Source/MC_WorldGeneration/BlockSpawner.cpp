@@ -86,6 +86,18 @@ void ABlockSpawner::DestoryBlock(FVector location, bool permanent = false)
 }
 
 
+void ABlockSpawner::DisableBlockColumn(FVector2D location)
+{
+	if (!persistent_occupied.Contains(location)) {
+		return;
+	}
+
+	for (auto& blockInfoPair : *persistent_occupied.Find(location)) {
+		auto blockInfo = (blockInfoPair.Value);
+		pool->DestroyBlock(blockInfo.Value, blockInfo.Key);
+	}
+}
+
 bool ABlockSpawner::QueryOccupiedLocation(FVector location)
 {
 	FVector2D v2d = FVector2D(location);

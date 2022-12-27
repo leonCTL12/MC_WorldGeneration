@@ -93,7 +93,7 @@ void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 
 	for (int i = 0; i < numberOfMountain; i++) {
 
-		FVector peakPoint = FVector(FMath::RandRange(minPtr.X, maxPtr.X), FMath::RandRange(minPtr.Y, maxPtr.Y), FMath::RandRange(0, maxMountainHeight));
+		FVector peakPoint = FVector(FMath::RandRange((int)minPtr.X, (int)maxPtr.X), FMath::RandRange((int)minPtr.Y, (int)maxPtr.Y), FMath::RandRange(0, (int)maxMountainHeight));
 		BuildMountain(peakPoint);
 	}
 }
@@ -257,7 +257,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int y = YLowerBound + 1; y < YUpperBound; y++) {
 			for (int x = XLowerBound + 1; x < XLowerBound + 1 + dynamicGenChunkSize; x++) {
-				blockSpawner->DestoryBlock(FVector(x, y, 0), false);
+				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 
 			for (int x = XUpperBound; x < XUpperBound + dynamicGenChunkSize; x++) {
@@ -269,14 +269,14 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 		XUpperBound += dynamicGenChunkSize;
 		XLowerBound += dynamicGenChunkSize;
 
-		GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+    	GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 		GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 
 		break;
 	case XLow:
 		for (int y = YLowerBound + 1; y < YUpperBound; y++) {
 			for (int x = XUpperBound - 1; x > XUpperBound - dynamicGenChunkSize - 1; x--) {
-				blockSpawner->DestoryBlock(FVector(x, y, 0), false);
+				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 
 			for (int x = XLowerBound; x > XLowerBound - dynamicGenChunkSize; x--) {
@@ -297,7 +297,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
 			for (int y = YLowerBound + 1; y < YLowerBound + dynamicGenChunkSize + 1; y++) {
-				blockSpawner->DestoryBlock(FVector(x, y, 0), false);
+				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 
 			for (int y = YUpperBound; y < YUpperBound + dynamicGenChunkSize; y++) {
@@ -314,7 +314,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
 			for (int y = YUpperBound - 1; y > YUpperBound - dynamicGenChunkSize - 1; y--) {
-				blockSpawner->DestoryBlock(FVector(x, y, 0), false);
+				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 			for (int y = YLowerBound; y > YLowerBound - dynamicGenChunkSize; y--) {
 				blockSpawner->SpawnBlock(FVector(x, y, 0), grass);

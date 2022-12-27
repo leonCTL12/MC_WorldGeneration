@@ -37,6 +37,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	void SpawnBlock(FVector location, BlockType blockType);
 	void DestoryBlock(FVector location, bool permanent);
+	void DisableBlockColumn(FVector2D location);
 	bool QueryOccupiedLocation(FVector location);
 
 protected:
@@ -47,9 +48,4 @@ protected:
 private:
 	TPair<BlockType, class ABlockBase*>* FetchBlockInfoByLocation(FVector location);
 	void AddBlockToMap(TPair<BlockType, class ABlockBase*>*, FVector location);
-
-
-
-
-	
 };
