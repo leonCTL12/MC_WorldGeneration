@@ -19,12 +19,27 @@ void ABlockSpawner::BeginPlay()
 	Super::BeginPlay();
 }
 
+// It is caller's responsibility to ensure that that block exist
+TPair<BlockType, class ABlockBase*>* ABlockSpawner::FetchBlockInfoByLocation(FVector location)
+{
+	return persistent_occupied.Find((FVector2D)location)->Find(location.Z);
+}
+
+void ABlockSpawner::AddBlockToMap(TPair<BlockType, class ABlockBase*>* blockInfo, FVector location)
+{
+	FVector2D location_2d = (FVector2D)location;
+	if (!persistent_occupied.Contains(location_2d)) {
+		persistent_occupied.Add(location_2d, *(new TMap<int, TPair<BlockType, ABlockBase*>>));
+	}
+	persistent_occupied.Find(location_2d)->Add(location.Z, *blockInfo);
+}
+
 //This is called before begin play
 void ABlockSpawner::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 	origin = GetActorLocation();
-	pool = new BlockPool(grassBlockClass);
+	pool = new BlockPool(grassBlockClass, soilBlockClass);
 }
 
 // Called every frame
@@ -41,13 +56,13 @@ void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType )
 {
 	ABlockBase* block = nullptr;
 	if (QueryOccupiedLocation(location)) {
-		auto blockInfo = persistent_occupied.Find(location);
+		auto blockInfo = FetchBlockInfoByLocation(location);
 	    block = pool->CreateBlock(GetWorld(), blockInfo->Key);
 	}
 	else {
 		block = pool->CreateBlock(GetWorld(), blockType);
-		TPair<BlockType, ABlockBase* > pair(blockType, block);
-		persistent_occupied.Add(location, pair);
+		TPair<BlockType, ABlockBase* > info(blockType, block);
+		AddBlockToMap(&info, location);
 	}
 
 	block->SetActorLocation(location * BlockDimension + origin);
@@ -65,7 +80,7 @@ void ABlockSpawner::DestoryBlock(FVector location, bool permanent = false)
 		//TODO: Implement Permanent Destroy when mining mechanism is implemented
 	}
 	else {
-		auto blockInfo = persistent_occupied.Find(location);
+		auto blockInfo = FetchBlockInfoByLocation(location);
 		pool->DestroyBlock(blockInfo->Value, blockInfo->Key);
 	}
 }
@@ -73,5 +88,8 @@ void ABlockSpawner::DestoryBlock(FVector location, bool permanent = false)
 
 bool ABlockSpawner::QueryOccupiedLocation(FVector location)
 {
-	return persistent_occupied.Contains(location);
+	FVector2D v2d = FVector2D(location);
+	if (!persistent_occupied.Contains(v2d)) { return false; }
+
+	return persistent_occupied.Find(v2d)->Contains(location.Z);
 }

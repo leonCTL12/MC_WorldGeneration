@@ -55,7 +55,7 @@ void AWorldGenerator::Tick(float DeltaTime)
 void AWorldGenerator::GenerateWorld()
 {
 	GenerateLand();
-	//GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+	GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 	//GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 }
 
@@ -100,40 +100,40 @@ void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 
 void AWorldGenerator::BuildMountain(FVector peakPoint)
 {
-	//FRotator Rotation(0);
-	//UWorld* world = GetWorld();
+	FRotator Rotation(0);
+	UWorld* world = GetWorld();
 
-	//int height = peakPoint.Z;
+	int height = peakPoint.Z;
 
-	////probability to expand (in percent)
-	//const int expandProbability = 90;
+	//probability to expand (in percent)
+	const int expandProbability = 90;
 
-	//int currentExpansion = 1;
-	//int previousExpansion = currentExpansion;
-	//while (height > 1) {
-	//	height--;
+	int currentExpansion = 1;
+	int previousExpansion = currentExpansion;
+	while (height > 1) {
+		height--;
 
-	//	if (MyMathUtility::RandomWeightedBool(expandProbability)) {
-	//		currentExpansion += FMath::RandRange(1, 2);
-	//	}
+		if (MyMathUtility::RandomWeightedBool(expandProbability)) {
+			currentExpansion += FMath::RandRange(1, 2);
+		}
 
-	//	for (int widthDelta = -currentExpansion; widthDelta < currentExpansion + 1; widthDelta++) {
-	//		for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion + 1; lengthDelta++) {
+		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion + 1; widthDelta++) {
+			for (int lengthDelta = -currentExpansion; lengthDelta < currentExpansion + 1; lengthDelta++) {
 
-	//			FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
-	//			spawnPoint.Z = height;
+				FVector spawnPoint = peakPoint + FVector(lengthDelta, widthDelta, 0);
+				spawnPoint.Z = height;
 
-	//			if (height == peakPoint.Z - 1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
-	//				blockSpawner->SpawnBlock(grassBlockClass, spawnPoint);
-	//			}
-	//			else {
-	//				blockSpawner->SpawnBlock(soilBlockClass, spawnPoint);
-	//			}
-	//		}
-	//	}
+				if (height == peakPoint.Z - 1 || FMath::Abs(widthDelta) > previousExpansion || FMath::Abs(lengthDelta) > previousExpansion) {
+					blockSpawner->SpawnBlock(spawnPoint, grass);
+				}
+				else {
+					blockSpawner->SpawnBlock(spawnPoint, soil);
+				}
+			}
+		}
 
-	//	previousExpansion = currentExpansion;
-	//}
+		previousExpansion = currentExpansion;
+	}
 }
 #pragma endregion
 

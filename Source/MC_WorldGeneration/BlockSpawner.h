@@ -20,7 +20,7 @@ public:
 	FVector origin;
 	
 private:
-	TMap<FVector, TPair<BlockType, class ABlockBase*>> persistent_occupied;
+	TMap<FVector2D, TMap<int, TPair<BlockType, class ABlockBase*>>> persistent_occupied;
 	static const int BlockDimension = 100;
 	class BlockPool* pool;
 	UPROPERTY(EditAnywhere)
@@ -30,19 +30,26 @@ private:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class AWoodBlock> woodBlockClass;
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class ALeafBlock> leafwoodBlockClass;
-protected:
-	virtual void PostInitializeComponents() override;
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-	
+		TSubclassOf<class ALeafBlock> leafBlockClass;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 	void SpawnBlock(FVector location, BlockType blockType);
 	void DestoryBlock(FVector location, bool permanent);
 	bool QueryOccupiedLocation(FVector location);
+
+protected:
+	virtual void PostInitializeComponents() override;
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+private:
+	TPair<BlockType, class ABlockBase*>* FetchBlockInfoByLocation(FVector location);
+	void AddBlockToMap(TPair<BlockType, class ABlockBase*>*, FVector location);
+
+
+
 
 	
 };

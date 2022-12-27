@@ -12,7 +12,7 @@
 class MC_WORLDGENERATION_API BlockPool
 {
 public:
-	BlockPool(TSubclassOf<AGrassBlock> grass);
+	BlockPool(TSubclassOf<AGrassBlock> grass, TSubclassOf<ASoilBlock> soil);
 	~BlockPool();
 
 private:
@@ -20,6 +20,8 @@ private:
 private:
 	std::stack<ABlockBase*> grassBlockPool;
 	TSubclassOf<AGrassBlock> grassBlockClass;
+	std::stack<ABlockBase*> soilBlockPool;
+	TSubclassOf<ASoilBlock> soilBlockClass;
 
 public:
 	ABlockBase* CreateBlock(UWorld* world, BlockType blockType);

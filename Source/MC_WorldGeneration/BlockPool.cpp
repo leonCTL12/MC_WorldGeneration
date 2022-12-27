@@ -3,9 +3,10 @@
 
 #include "BlockBase.h"
 #include "GrassBlock.h"
+#include "SoilBlock.h"
 #include "BlockPool.h"
 
-BlockPool::BlockPool(TSubclassOf<AGrassBlock> grass): grassBlockClass(grass) {}
+BlockPool::BlockPool(TSubclassOf<AGrassBlock> grass, TSubclassOf<ASoilBlock> soil) : grassBlockClass(grass), soilBlockClass(soil) {}
 
 BlockPool::~BlockPool()
 {
@@ -41,6 +42,8 @@ std::stack<ABlockBase*>* BlockPool::LocatePool(BlockType blockType)
 	{
 	case grass:
 		return &grassBlockPool;
+	case soil:
+		return &soilBlockPool;
 	default:
 		return nullptr;
 	}
@@ -52,6 +55,8 @@ TSubclassOf<ABlockBase> BlockPool::LocateBlockClass(BlockType blockType)
 	{
 	case grass:
 		return grassBlockClass;
+	case soil:
+		return soilBlockClass;
 	default:
 		return nullptr;
 	}
