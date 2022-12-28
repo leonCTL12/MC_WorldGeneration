@@ -34,6 +34,10 @@ private:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ALeafBlock> leafBlockClass;
 
+	int XLowerBound;
+	int YLowerBound;
+	int XUpperBound;
+	int YUpperBound;
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -43,10 +47,11 @@ public:
 	void ReEnableBlockColumn(FVector2D location);
 	bool QueryOccupiedLocation(FVector location);
 	void InitBlockSpawner(int renderDistance);
-
+	void UpdateBounds(int xUp, int xLow, int yUp, int yLow);
 protected:
 	virtual void PostInitializeComponents() override;
 private:
 	TPair<BlockType, class ABlockBase*>* FetchBlockInfoByLocation(FVector location);
 	void AddBlockToMap(TPair<BlockType, class ABlockBase*>*, FVector location);
+	bool boundCheck(FVector location);
 };

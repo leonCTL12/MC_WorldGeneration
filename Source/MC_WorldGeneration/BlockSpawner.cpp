@@ -33,6 +33,11 @@ void ABlockSpawner::AddBlockToMap(TPair<BlockType, class ABlockBase*>* blockInfo
 	persistent_occupied.Find(location_2d)->Add(location.Z, *blockInfo);
 }
 
+bool ABlockSpawner::boundCheck(FVector location)
+{
+	return location.X<XUpperBound&& location.X>XLowerBound && location.Y<YUpperBound && location.Y>YLowerBound;
+}
+
 //This is called before begin play
 void ABlockSpawner::PostInitializeComponents()
 {
@@ -52,21 +57,24 @@ void ABlockSpawner::Tick(float DeltaTime)
 
 //Spawn a new block at the location
 
-//It is World Generator's responsibility to ensure that each location only has one block
 void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType )
 {
 	ABlockBase* block = nullptr;
 	if (QueryOccupiedLocation(location)) {
-		auto blockInfo = FetchBlockInfoByLocation(location);
-	    block = pool->CreateBlock(GetWorld(), blockInfo->Key);
-	}
-	else {
-		block = pool->CreateBlock(GetWorld(), blockType);
-		TPair<BlockType, ABlockBase* > info(blockType, block);
-		AddBlockToMap(&info, location);
+		return;
 	}
 
-	block->SetActorLocation(location * BlockDimension + origin);
+	//Spawn the block only if it is with the bounds, otherwise just record it to the occupied map
+	if (boundCheck(location)) {
+		block = pool->CreateBlock(GetWorld(), blockType);
+		block->SetActorLocation(location * BlockDimension + origin);
+	}
+	else {
+		int a = 3;
+	}
+	TPair<BlockType, ABlockBase* > info(blockType, block);
+	AddBlockToMap(&info, location);
+
 
 }
 
@@ -107,8 +115,9 @@ void ABlockSpawner::ReEnableBlockColumn(FVector2D location)
 	}
 
 	for (auto& blockInfoPair : *persistent_occupied.Find(location)) {
-		auto blockInfo = (blockInfoPair.Value);
+		auto& blockInfo = (blockInfoPair.Value);
 		ABlockBase* block = pool->CreateBlock(GetWorld(), blockInfo.Key);
+		blockInfo.Value = block;
 		FVector spawnLocation(location.X, location.Y, blockInfoPair.Key);
 		block->SetActorLocation(spawnLocation * BlockDimension + origin);
 	}
@@ -131,3 +140,12 @@ void ABlockSpawner::InitBlockSpawner(int renderDistance)
 	origin.Y -= renderDistance * BlockDimension;
 	origin.Z -= 8 * BlockDimension;
 }
+
+void ABlockSpawner::UpdateBounds(int xUp, int xLow, int yUp, int yLow)
+{
+	XUpperBound = xUp;
+	XLowerBound = xLow;
+	YUpperBound = yUp;
+	YLowerBound = yLow;
+}
+

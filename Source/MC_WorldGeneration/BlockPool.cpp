@@ -31,6 +31,9 @@ ABlockBase* BlockPool::CreateBlock(UWorld* world, BlockType blockType)
 
 void BlockPool::DestroyBlock(ABlockBase* block, BlockType blockType)
 {
+	if (!block) {
+		return;
+	}
 	block->SetActive(false);
 	std::stack<ABlockBase*>* pool = LocatePool(blockType);
 	pool->push(block);

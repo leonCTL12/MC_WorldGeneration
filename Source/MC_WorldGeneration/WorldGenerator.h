@@ -53,16 +53,10 @@ private:
 #pragma endregion
 
 
-	float XLowerBound;
-	float YLowerBound;
-	float XUpperBound;
-	float YUpperBound;
-
-	float XMinBound;
-	float YMinBound;
-	float XMaxBound;
-	float YMaxBound;
-	
+	int XLowerBound;
+	int YLowerBound;
+	int XUpperBound;
+	int YUpperBound;
 
 	class ACharacter* player;
 protected:
