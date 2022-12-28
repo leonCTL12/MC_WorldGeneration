@@ -23,6 +23,8 @@ private:
 	TMap<FVector2D, TMap<int, TPair<BlockType, class ABlockBase*>>> persistent_occupied;
 	static const int BlockDimension = 100;
 	class BlockPool* pool;
+	class ACharacter* player;
+
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class ASoilBlock> soilBlockClass;
 	UPROPERTY(EditAnywhere)
@@ -38,13 +40,12 @@ public:
 	void SpawnBlock(FVector location, BlockType blockType);
 	void DestoryBlock(FVector location, bool permanent);
 	void DisableBlockColumn(FVector2D location);
+	void ReEnableBlockColumn(FVector2D location);
 	bool QueryOccupiedLocation(FVector location);
+	void InitBlockSpawner(int renderDistance);
 
 protected:
 	virtual void PostInitializeComponents() override;
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 private:
 	TPair<BlockType, class ABlockBase*>* FetchBlockInfoByLocation(FVector location);
 	void AddBlockToMap(TPair<BlockType, class ABlockBase*>*, FVector location);

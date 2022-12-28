@@ -29,10 +29,10 @@ void AWorldGenerator::BeginPlay()
 	UE_LOG(LogTemp, Warning, TEXT("ZZ2"));
 
 	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
-	
+	blockSpawner->InitBlockSpawner(renderDistance);
 	XUpperBound = renderDistance * 2;
 	XLowerBound = -1;
-	YUpperBound = renderDistance*2;
+	YUpperBound = renderDistance * 2;
 	YLowerBound = -1; 
 
 	GenerateWorld();
@@ -250,81 +250,121 @@ void AWorldGenerator::CheckMapExpansion(FVector normalizedPlayerLocation)
 
 void AWorldGenerator::ExpandMap(ExpandDirection direction)
 {
+	bool newExapansion;
 	switch (direction)
 	{
 	case XUp:
 		UE_LOG(LogTemp, Warning, TEXT("Expand XUp"));
+		newExapansion = !blockSpawner->QueryOccupiedLocation(FVector(XUpperBound, YLowerBound + 1, 0));
 
+		
 		for (int y = YLowerBound + 1; y < YUpperBound; y++) {
 			for (int x = XLowerBound + 1; x < XLowerBound + 1 + dynamicGenChunkSize; x++) {
 				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
-
+			
 			for (int x = XUpperBound; x < XUpperBound + dynamicGenChunkSize; x++) {
-				blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				if (newExapansion) {
+					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				}
+				else {
+					blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
+				}
 			}
-
+			
 		}
+
+		
 
 		XUpperBound += dynamicGenChunkSize;
 		XLowerBound += dynamicGenChunkSize;
-
-    	GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
-		GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+		if (newExapansion) {
+			GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+			GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+		}
 
 		break;
 	case XLow:
+		UE_LOG(LogTemp, Warning, TEXT("Expand XLow"));
+
+		newExapansion = !blockSpawner->QueryOccupiedLocation(FVector(XLowerBound, YLowerBound + 1, 0));
+
 		for (int y = YLowerBound + 1; y < YUpperBound; y++) {
 			for (int x = XUpperBound - 1; x > XUpperBound - dynamicGenChunkSize - 1; x--) {
 				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 
 			for (int x = XLowerBound; x > XLowerBound - dynamicGenChunkSize; x--) {
-				blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				if (newExapansion) {
+					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				}
+				else {
+					blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
+				}
 			}
 
 		}
 		XUpperBound -= dynamicGenChunkSize;
 		XLowerBound -= dynamicGenChunkSize;
 
-		GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));
-		GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));
+		if (newExapansion) {
+			GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));
+			GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));
+		}
 
 		break;
 
 	case YUp:
-		UE_LOG(LogTemp, Warning, TEXT("Expand YUp"));
+		/*	UE_LOG(LogTemp, Warning, TEXT("Expand YUp"));
+			newExapansion = !blockSpawner->QueryOccupiedLocation(FVector(XLowerBound+1, YUpperBound, 0));
 
-		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
-			for (int y = YLowerBound + 1; y < YLowerBound + dynamicGenChunkSize + 1; y++) {
-				blockSpawner->DisableBlockColumn(FVector2D(x, y));
+			for (int x = XLowerBound + 1; x < XUpperBound; x++) {
+				for (int y = YLowerBound + 1; y < YLowerBound + dynamicGenChunkSize + 1; y++) {
+					blockSpawner->DisableBlockColumn(FVector2D(x, y));
+				}
+
+				for (int y = YUpperBound; y < YUpperBound + dynamicGenChunkSize; y++) {
+					if (newExapansion) {
+						blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+					}
+					else {
+						blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
+					}
+				}
 			}
 
-			for (int y = YUpperBound; y < YUpperBound + dynamicGenChunkSize; y++) {
-				blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
-			}
-		}
-
-		YUpperBound += dynamicGenChunkSize;
-		YLowerBound += dynamicGenChunkSize;
-
+			YUpperBound += dynamicGenChunkSize;
+			YLowerBound += dynamicGenChunkSize;
+			if (newExapansion) {
+				GenerateMountain(FVector2D(XLowerBound, YUpperBound-dynamicGenChunkSize), FVector2D(XUpperBound, YUpperBound));
+				GenerateTrees(FVector2D(XLowerBound, YUpperBound - dynamicGenChunkSize), FVector2D(XUpperBound, YUpperBound));
+			}*/
 		break;
 	case YLow:
-		UE_LOG(LogTemp, Warning, TEXT("Expand YLow"));
+	/*	UE_LOG(LogTemp, Warning, TEXT("Expand YLow"));
+		newExapansion = !blockSpawner->QueryOccupiedLocation(FVector(XLowerBound + 1, YLowerBound, 0));
 
 		for (int x = XLowerBound + 1; x < XUpperBound; x++) {
 			for (int y = YUpperBound - 1; y > YUpperBound - dynamicGenChunkSize - 1; y--) {
 				blockSpawner->DisableBlockColumn(FVector2D(x, y));
 			}
 			for (int y = YLowerBound; y > YLowerBound - dynamicGenChunkSize; y--) {
-				blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				if (newExapansion) {
+					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
+				}
+				else {
+					blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
+				}
 			}
 			
 		}
 
 		YUpperBound -= dynamicGenChunkSize;
 		YLowerBound -= dynamicGenChunkSize;
-
+		if (newExapansion) {
+			GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YLowerBound+dynamicGenChunkSize));
+			GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YLowerBound + dynamicGenChunkSize));
+		}*/
 		break;
 
 	default:

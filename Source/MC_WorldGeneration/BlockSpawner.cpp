@@ -5,6 +5,9 @@
 #include "BlockPool.h"
 #include "Engine/World.h"
 #include "BlockBase.h"
+#include "GameFramework/Character.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values
 ABlockSpawner::ABlockSpawner()
@@ -13,11 +16,7 @@ ABlockSpawner::ABlockSpawner()
 	PrimaryActorTick.bCanEverTick = true;
 }
 
-// Called when the game starts or when spawned
-void ABlockSpawner::BeginPlay()
-{
-	Super::BeginPlay();
-}
+
 
 // It is caller's responsibility to ensure that that block exist
 TPair<BlockType, class ABlockBase*>* ABlockSpawner::FetchBlockInfoByLocation(FVector location)
@@ -38,9 +37,11 @@ void ABlockSpawner::AddBlockToMap(TPair<BlockType, class ABlockBase*>* blockInfo
 void ABlockSpawner::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
-	origin = GetActorLocation();
+
 	pool = new BlockPool(grassBlockClass, soilBlockClass);
 }
+
+
 
 // Called every frame
 void ABlockSpawner::Tick(float DeltaTime)
@@ -98,10 +99,35 @@ void ABlockSpawner::DisableBlockColumn(FVector2D location)
 	}
 }
 
+
+void ABlockSpawner::ReEnableBlockColumn(FVector2D location)
+{
+	if (!persistent_occupied.Contains(location)) {
+		return;
+	}
+
+	for (auto& blockInfoPair : *persistent_occupied.Find(location)) {
+		auto blockInfo = (blockInfoPair.Value);
+		ABlockBase* block = pool->CreateBlock(GetWorld(), blockInfo.Key);
+		FVector spawnLocation(location.X, location.Y, blockInfoPair.Key);
+		block->SetActorLocation(spawnLocation * BlockDimension + origin);
+	}
+}
+
 bool ABlockSpawner::QueryOccupiedLocation(FVector location)
 {
 	FVector2D v2d = FVector2D(location);
 	if (!persistent_occupied.Contains(v2d)) { return false; }
 
 	return persistent_occupied.Find(v2d)->Contains(location.Z);
+}
+
+void ABlockSpawner::InitBlockSpawner(int renderDistance)
+{
+	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
+
+	origin = player->GetActorLocation();
+	origin.X -= renderDistance * BlockDimension;
+	origin.Y -= renderDistance * BlockDimension;
+	origin.Z -= 8 * BlockDimension;
 }
