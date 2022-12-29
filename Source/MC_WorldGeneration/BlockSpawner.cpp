@@ -69,9 +69,7 @@ void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType )
 		block = pool->CreateBlock(GetWorld(), blockType);
 		block->SetActorLocation(location * BlockDimension + origin);
 	}
-	else {
-		int a = 3;
-	}
+
 	TPair<BlockType, ABlockBase* > info(blockType, block);
 	AddBlockToMap(&info, location);
 

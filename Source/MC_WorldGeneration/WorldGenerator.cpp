@@ -255,8 +255,6 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 	{
 	case XUp:
 		UE_LOG(LogTemp, Warning, TEXT("Expand XUp"));
-		newExapansion = !blockSpawner->QueryOccupiedLocation(FVector(XUpperBound, YLowerBound + 1, 0));
-
 
 		XUpperBound += dynamicGenChunkSize;
 		XLowerBound += dynamicGenChunkSize;
@@ -269,19 +267,18 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 			for (int x = XUpperBound - dynamicGenChunkSize; x < XUpperBound; x++) {
 				blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
-				if (newExapansion) {
+				if (!blockSpawner->QueryOccupiedLocation(FVector(x, y, 0))) {
 					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
 				}
 			}
 
 		}
 
-
-
-		if (newExapansion) {
-			/*GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
-			GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));*/
-		}
+		//TODO: we no longer use new expansion, think of a new way to solve determine whether it is new or not
+		//if (newExapansion) {
+		//	/*GenerateMountain(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+		//	GenerateTrees(FVector2D(XUpperBound - dynamicGenChunkSize, YLowerBound), FVector2D(XUpperBound, YUpperBound));*/
+		//}
 
 		break;
 	case XLow:
@@ -300,19 +297,13 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 			for (int x = XLowerBound+ dynamicGenChunkSize; x > XLowerBound; x--) {
 				blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
-				if (newExapansion) {
+				if (!blockSpawner->QueryOccupiedLocation(FVector(x, y, 0))) {
 					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
 				}
 			}
 
 		}
 		
-
-		if (newExapansion) {
-			/*GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));
-			GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XLowerBound + dynamicGenChunkSize, YUpperBound));*/
-		}
-
 		break;
 
 	case YUp:
@@ -332,16 +323,13 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 
 				for (int y = YUpperBound-dynamicGenChunkSize; y < YUpperBound; y++) {
 					blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
-					if (newExapansion) {
+					if (!blockSpawner->QueryOccupiedLocation(FVector(x, y, 0))) {
 						blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
 					}
 				}
 			}
 
-			if (newExapansion) {
-		/*		GenerateMountain(FVector2D(XLowerBound, YUpperBound-dynamicGenChunkSize), FVector2D(XUpperBound, YUpperBound));
-				GenerateTrees(FVector2D(XLowerBound, YUpperBound - dynamicGenChunkSize), FVector2D(XUpperBound, YUpperBound));*/
-			}
+		
 		break;
 	case YLow:
 		UE_LOG(LogTemp, Warning, TEXT("Expand YLow"));
@@ -357,7 +345,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 			}
 			for (int y = YLowerBound + dynamicGenChunkSize; y > YLowerBound; y--) {
 				blockSpawner->ReEnableBlockColumn(FVector2D(x, y));
-				if (newExapansion) {
+				if (!blockSpawner->QueryOccupiedLocation(FVector(x, y, 0))) {
 					blockSpawner->SpawnBlock(FVector(x, y, 0), grass);
 				}
 			}
@@ -365,10 +353,7 @@ void AWorldGenerator::ExpandMap(ExpandDirection direction)
 		}
 
 		
-		if (newExapansion) {
-			/*GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YLowerBound+dynamicGenChunkSize));
-			GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YLowerBound + dynamicGenChunkSize));*/
-		}
+		
 		break;
 
 	default:
