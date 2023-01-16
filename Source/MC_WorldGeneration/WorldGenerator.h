@@ -16,7 +16,7 @@ public:
 private:
 	static const int DensityDivisor = 10000;
 
-#pragma region World
+#pragma region World (This region will not be needed for the new implementation)
 	//This is the normalized render distance
 	UPROPERTY(EditAnywhere)
 		int renderDistance = 5;
@@ -25,6 +25,12 @@ private:
 	UPROPERTY(EditAnywhere)
 		int dynamicGenChunkSize = 2;
 #pragma endregion
+
+#pragma region Module
+	UPROPERTY(EditAnywhere)
+		int moduleDimension = 10;
+#pragma endregion
+
 
 #pragma region Mountain
 	//Define density as number per 100*100 blocks 
@@ -66,9 +72,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-	void GenerateWorld();
+	void GenerateModule(FVector2D moduleCoordinate);
 private:
-	void GenerateLand();
+	void GenerateLand(FVector2D minPtr, FVector2D maxPtr);
 	void GenerateMountain(FVector2D minPtr, FVector2D maxPtr);
 
 	void BuildMountain(FVector peakPoint);

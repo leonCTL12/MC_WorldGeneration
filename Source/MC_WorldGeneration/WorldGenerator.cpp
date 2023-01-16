@@ -35,7 +35,15 @@ void AWorldGenerator::BeginPlay()
 	YUpperBound = renderDistance * 2;
 	YLowerBound = -1; 
 	blockSpawner->UpdateBounds(XUpperBound, XLowerBound, YUpperBound, YLowerBound);
-	GenerateWorld();
+
+	//for (int x = -1; x < 2; x++) {
+	//	for (int y = -1; y < 2; y++) {
+
+	//	}
+	//}
+
+	GenerateModule(FVector2D(0,0));
+	GenerateModule(FVector2D(1,0));
 }
 
 // Called every frame
@@ -49,35 +57,32 @@ void AWorldGenerator::Tick(float DeltaTime)
 	playerLocation.X = FGenericPlatformMath::RoundToInt(playerLocation.X);
 	playerLocation.Y = FGenericPlatformMath::RoundToInt(playerLocation.Y);
 	
-	CheckMapExpansion(playerLocation);
+	//CheckMapExpansion(playerLocation);
 }
 
-void AWorldGenerator::GenerateWorld()
+void AWorldGenerator::GenerateModule(FVector2D moduleCoordinate)
 {
-	GenerateLand();
+	FVector2D minPtr = FVector2D(moduleCoordinate.X * moduleDimension, moduleCoordinate.Y * moduleDimension);
+	FVector2D maxPtr = minPtr + FVector2D(moduleDimension, moduleDimension);
+	GenerateLand(minPtr, maxPtr);
 	//GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 	//GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 }
 
-void AWorldGenerator::GenerateLand()
+void AWorldGenerator::GenerateLand(FVector2D minPtr, FVector2D maxPtr)
 {
 	FRotator Rotation(0);
-	
-	FVector currentSpawnPoint(0);
 
-	for (int w = 0; w < renderDistance*2; w++) {
-		currentSpawnPoint.Y = 0;
-		for (int l = 0; l < renderDistance*2; l++) {
+	for (int x = minPtr.X; x < maxPtr.X; x++) {
+		for (int y = minPtr.Y; y < maxPtr.Y; y++) {
 			if (!blockSpawner) {
 				UE_LOG(LogTemp, Error, TEXT("No Spawner!!!!"));
 				break;
 			}
 			else {
-				blockSpawner->SpawnBlock(currentSpawnPoint, grass);
-				currentSpawnPoint += FVector(0, 1, 0);
+				blockSpawner->SpawnBlock(FVector(x,y,0), grass);
 			}
 		}
-		currentSpawnPoint += FVector(1, 0, 0);
 	}
 }
 
