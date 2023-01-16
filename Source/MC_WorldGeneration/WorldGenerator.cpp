@@ -99,8 +99,8 @@ void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 	for (int i = 0; i < numberOfMountain; i++) {
 		int mountainHeight = FMath::RandRange(0, (int)maxMountainHeight);
 
-		FVector2D bufferedMinPtr = minPtr + FVector2D(mountainHeight, mountainHeight);
-		FVector2D bufferedMaxPtr = maxPtr - FVector2D(mountainHeight, mountainHeight);
+		FVector2D bufferedMinPtr = minPtr + FVector2D(mountainHeight+1, mountainHeight+1);
+		FVector2D bufferedMaxPtr = maxPtr - FVector2D(mountainHeight+1, mountainHeight+1);
 
 		if (bufferedMinPtr.Y >= bufferedMaxPtr.Y || bufferedMinPtr.X >= bufferedMaxPtr.X) continue;
 
