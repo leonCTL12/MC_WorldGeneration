@@ -26,7 +26,7 @@ void AWorldGenerator::BeginPlay()
 {
 	Super::BeginPlay();
 	ensure(blockSpawner);
-	UE_LOG(LogTemp, Warning, TEXT("ZZ2"));
+	UE_LOG(LogTemp, Warning, TEXT("ZZ3"));
 
 	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 	blockSpawner->InitBlockSpawner(renderDistance);
@@ -65,7 +65,7 @@ void AWorldGenerator::GenerateModule(FVector2D moduleCoordinate)
 	FVector2D minPtr = FVector2D(moduleCoordinate.X * moduleDimension, moduleCoordinate.Y * moduleDimension);
 	FVector2D maxPtr = minPtr + FVector2D(moduleDimension, moduleDimension);
 	GenerateLand(minPtr, maxPtr);
-	//GenerateMountain(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+	GenerateMountain(minPtr, maxPtr);
 	//GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
 }
 
@@ -97,8 +97,14 @@ void AWorldGenerator::GenerateMountain(FVector2D minPtr, FVector2D maxPtr)
 	int numberOfMountain = FMath::RandRange(minNumMountain, maxNumMountain);
 
 	for (int i = 0; i < numberOfMountain; i++) {
+		int mountainHeight = FMath::RandRange(0, (int)maxMountainHeight);
 
-		FVector peakPoint = FVector(FMath::RandRange((int)minPtr.X, (int)maxPtr.X), FMath::RandRange((int)minPtr.Y, (int)maxPtr.Y), FMath::RandRange(0, (int)maxMountainHeight));
+		FVector2D bufferedMinPtr = minPtr + FVector2D(mountainHeight, mountainHeight);
+		FVector2D bufferedMaxPtr = maxPtr - FVector2D(mountainHeight, mountainHeight);
+
+		if (bufferedMinPtr.Y >= bufferedMaxPtr.Y || bufferedMinPtr.X >= bufferedMaxPtr.X) continue;
+
+		FVector peakPoint = FVector(FMath::RandRange((int)bufferedMinPtr.X, (int)bufferedMaxPtr.X), FMath::RandRange((int)bufferedMinPtr.Y, (int)bufferedMaxPtr.Y), mountainHeight);
 		BuildMountain(peakPoint);
 	}
 }
@@ -119,7 +125,8 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 		height--;
 
 		if (MyMathUtility::RandomWeightedBool(expandProbability)) {
-			currentExpansion += FMath::RandRange(1, 2);
+			//currentExpansion += FMath::RandRange(1, 2);
+			currentExpansion ++;
 		}
 
 		for (int widthDelta = -currentExpansion; widthDelta < currentExpansion + 1; widthDelta++) {

@@ -134,8 +134,6 @@ void ABlockSpawner::InitBlockSpawner(int renderDistance)
 	player = UGameplayStatics::GetPlayerCharacter(GetWorld(), 0);
 
 	origin = player->GetActorLocation();
-	origin.X -= renderDistance * BlockDimension;
-	origin.Y -= renderDistance * BlockDimension;
 	origin.Z -= 8 * BlockDimension;
 }
 
