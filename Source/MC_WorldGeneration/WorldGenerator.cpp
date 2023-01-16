@@ -43,7 +43,7 @@ void AWorldGenerator::BeginPlay()
 	//}
 
 	GenerateModule(FVector2D(0,0));
-	GenerateModule(FVector2D(1,0));
+	//GenerateModule(FVector2D(1,0));
 }
 
 // Called every frame
@@ -66,7 +66,7 @@ void AWorldGenerator::GenerateModule(FVector2D moduleCoordinate)
 	FVector2D maxPtr = minPtr + FVector2D(moduleDimension, moduleDimension);
 	GenerateLand(minPtr, maxPtr);
 	GenerateMountain(minPtr, maxPtr);
-	//GenerateTrees(FVector2D(XLowerBound, YLowerBound), FVector2D(XUpperBound, YUpperBound));
+	GenerateTrees(minPtr, maxPtr);
 }
 
 void AWorldGenerator::GenerateLand(FVector2D minPtr, FVector2D maxPtr)
@@ -152,7 +152,6 @@ void AWorldGenerator::BuildMountain(FVector peakPoint)
 #pragma region Tree Generation
 void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 {
-
 	int area = MyMathUtility::AreaBoundedByTwoPoints(minPtr, maxPtr);
 
 	int minNumTree = MyMathUtility::DensityToCount(minTreeDensity, area, DensityDivisor);
@@ -162,7 +161,10 @@ void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 
 	for (int i = 0; i < numberOfTree; i++) {
 
-		FVector rootPoint = FVector(FMath::RandRange(minPtr.X, maxPtr.X), FMath::RandRange(minPtr.Y, maxPtr.Y), 1);
+		FVector2D bufferedMinPtr = minPtr + FVector2D(2, 2);
+		FVector2D bufferedMaxPtr = maxPtr - FVector2D(2, 2);
+
+		FVector rootPoint = FVector(FMath::RandRange((int)bufferedMinPtr.X, (int)bufferedMaxPtr.X), FMath::RandRange((int)bufferedMinPtr.Y, (int)bufferedMaxPtr.Y), 1);
 
 		while (blockSpawner->QueryOccupiedLocation(rootPoint)) {
 			rootPoint.Z++;
@@ -174,13 +176,13 @@ void AWorldGenerator::GenerateTrees(FVector2D minPtr, FVector2D maxPtr)
 
 void AWorldGenerator::BuildTree(FVector spawnPoint)
 {
-	/*int treeHeight = FMath::RandRange(minTreeHeight, maxTreeHeight);
+	int treeHeight = FMath::RandRange(minTreeHeight, maxTreeHeight);
 	for (int i = 0; i < treeHeight; i++) {
-		blockSpawner->SpawnBlock(woodBlockClass, spawnPoint);
+		blockSpawner->SpawnBlock(spawnPoint, wood);
 		spawnPoint.Z++;
 	}
 	spawnPoint.Z--;
-	BuildTreeLeaf(spawnPoint);*/
+	BuildTreeLeaf(spawnPoint);
 
 }
 
@@ -189,31 +191,31 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 	//Hardcoded procedure to spawn tree leaf
 #pragma region Top Layer
 
-	/*blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y, topPoint.Z + 1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z + 1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z + 1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z + 1));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z + 1));
+	blockSpawner->SpawnBlock(FVector(topPoint.X, topPoint.Y, topPoint.Z + 1), leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X, topPoint.Y + 1, topPoint.Z + 1) , leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X, topPoint.Y - 1, topPoint.Z + 1), leaf);
+	blockSpawner->SpawnBlock( FVector(topPoint.X + 1, topPoint.Y, topPoint.Z + 1), leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X - 1, topPoint.Y, topPoint.Z + 1), leaf);
 
 #pragma endregion
 
 #pragma region Second Layer
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y + 1, topPoint.Z));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X, topPoint.Y - 1, topPoint.Z));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y, topPoint.Z));
-	blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y, topPoint.Z));
+	blockSpawner->SpawnBlock( FVector(topPoint.X, topPoint.Y + 1, topPoint.Z), leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X, topPoint.Y - 1, topPoint.Z), leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X + 1, topPoint.Y, topPoint.Z), leaf);
+	blockSpawner->SpawnBlock(FVector(topPoint.X - 1, topPoint.Y, topPoint.Z), leaf);
 	const int probSideLeaf = 30;
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y - 1, topPoint.Z));
+		blockSpawner->SpawnBlock(FVector(topPoint.X - 1, topPoint.Y - 1, topPoint.Z), leaf);
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z));
+		blockSpawner->SpawnBlock(FVector(topPoint.X - 1, topPoint.Y + 1, topPoint.Z), leaf);
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z));
+		blockSpawner->SpawnBlock(FVector(topPoint.X + 1, topPoint.Y - 1, topPoint.Z), leaf);
 	}
 	if (MyMathUtility::RandomWeightedBool(30)) {
-		blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z));
+		blockSpawner->SpawnBlock(FVector(topPoint.X + 1, topPoint.Y + 1, topPoint.Z), leaf);
 	}
 
 #pragma endregion
@@ -235,12 +237,12 @@ void AWorldGenerator::BuildTreeLeaf(FVector topPoint)
 				continue;
 			}
 
-			blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 1));
-			blockSpawner->SpawnBlock(leafwoodBlockClass, FVector(i, j, topPoint.Z - 2));
+			blockSpawner->SpawnBlock(FVector(i, j, topPoint.Z - 1), leaf);
+			blockSpawner->SpawnBlock( FVector(i, j, topPoint.Z - 2), leaf);
 		}
 	}
 
-#pragma endregion*/
+#pragma endregion
 }
 #pragma endregion
 

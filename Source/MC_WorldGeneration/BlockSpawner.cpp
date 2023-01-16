@@ -43,7 +43,7 @@ void ABlockSpawner::PostInitializeComponents()
 {
 	Super::PostInitializeComponents();
 
-	pool = new BlockPool(grassBlockClass, soilBlockClass);
+	pool = new BlockPool(grassBlockClass, soilBlockClass, woodBlockClass, leafBlockClass);
 }
 
 
@@ -65,14 +65,12 @@ void ABlockSpawner::SpawnBlock(FVector location, BlockType blockType )
 	}
 
 	//Spawn the block only if it is with the bounds, otherwise just record it to the occupied map
-	if (boundCheck(location)) {
-		block = pool->CreateBlock(GetWorld(), blockType);
-		block->SetActorLocation(location * BlockDimension + origin);
-	}
+	block = pool->CreateBlock(GetWorld(), blockType);
+	block->SetActorLocation(location * BlockDimension + origin);
+	
 
 	TPair<BlockType, ABlockBase* > info(blockType, block);
 	AddBlockToMap(&info, location);
-
 
 }
 
